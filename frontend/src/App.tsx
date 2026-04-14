@@ -14,7 +14,7 @@ function App() {
 
   const fetchProjects = async () => {
     const res = await fetch(
-      "http://localhost/development_management/get_projects.php"
+      "http://localhost/development_management/backend/get_projects.php"
     );
 
     const data = await res.json();
@@ -28,7 +28,7 @@ function App() {
 
   const handleSubmit = async () => {
     const response = await fetch(
-      "http://localhost/development_management/add_project.php",
+      "http://localhost/development_management/backend/add_project.php",
       {
         method: "POST",
         headers: {
@@ -54,7 +54,7 @@ function App() {
 
   const approveProject = async (projectId: number) => {
   const response = await fetch(
-    "http://localhost/development_management/approve_project.php",
+    "http://localhost/development_management/backend/approve_project.php",
     {
       method: "POST",
       headers: {
