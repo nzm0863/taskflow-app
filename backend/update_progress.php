@@ -18,14 +18,14 @@ $pdo = new PDO(
 $data = json_decode(file_get_contents("php://input"), true);
 
 $project_id = $data['project_id'];
-$status = $data['status'];
+$progress_rate = $data['progress_rate'];
 
-$sql = "UPDATE projects
-SET status = '$status'
+$sql = "UPDATE project_progress
+SET progress_rate = '$progress_rate'
 WHERE project_id = '$project_id'";
 
 $pdo->exec($sql);
 
 echo json_encode([
-    "message" => "承認更新完了"
+    "message" => "進捗更新完了"
 ]);

@@ -18,14 +18,18 @@ $pdo = new PDO(
 $data = json_decode(file_get_contents("php://input"), true);
 
 $project_id = $data['project_id'];
-$status = $data['status'];
+$actual_amount = $data['actual_amount'];
 
-$sql = "UPDATE projects
-SET status = '$status'
-WHERE project_id = '$project_id'";
+$sql = "
+UPDATE budget
+SET 
+    actual_amount = '$actual_amount',
+    remains = planned_amount - '$actual_amount'
+WHERE project_id = '$project_id'
+";
 
 $pdo->exec($sql);
 
 echo json_encode([
-    "message" => "承認更新完了"
+    "message" => "予算更新完了"
 ]);
