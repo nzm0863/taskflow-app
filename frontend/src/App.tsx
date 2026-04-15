@@ -59,7 +59,7 @@ function App() {
         body: JSON.stringify({
           project_name: projectName,
           description: description,
-          status: "申請中",
+          status: "一次承認待ち",
           applicant_id: 1,
         }),
       }
@@ -100,6 +100,12 @@ function App() {
   };
 
   const updateProgress = async (projectId: number) => {
+    const progress = Number(progressInputs[projectId]);
+
+    if (progress < 0 || progress > 100) {
+      alert("進捗は0〜100で入力してください");
+      return;
+    }
     const response = await fetch(
       "http://localhost/development_management/backend/update_progress.php",
       {
@@ -113,6 +119,7 @@ function App() {
         }),
       }
     );
+
 
     const result = await response.json();
 
@@ -162,7 +169,7 @@ function App() {
 
     console.log(result);
 
-    
+
     if (result.message === "ログイン成功") {
       setIsLoggedIn(true);
       setCurrentUserRole(result.role);
@@ -191,10 +198,10 @@ function App() {
         <button onClick={handleLogin}>
           ログイン
         </button>
-        
+
       </div>
     );
-    
+
   }
   const totalProjects = projects.length;
 
@@ -213,13 +220,14 @@ function App() {
       : 0;
 
   const totalRemainingBudget = projects.reduce(
-    (sum, project) => sum + (project.remains ?? 0),
+    (sum, project) => sum + Number(project.remains ?? 0),
     0
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-slate-200 p-8">
       <button
+        className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md absolute right-10 top-7 hover:bg-gray-700 cursor-pointer transition-colors duration-200 ease-in-out"
         onClick={() => {
           localStorage.clear();
           setIsLoggedIn(false);
@@ -228,36 +236,36 @@ function App() {
         ログアウト
       </button>
       <h1 className="text-3xl font-bold mb-6">案件一覧</h1>
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="bg-white border border-gray-300 p-4 rounded-md shadow-sm">
 
-        <div className="bg-white p-4 rounded shadow">
+        <div className="bg-gray-100 p-4 rounded shadow mb-2">
           総案件数: {totalProjects}
         </div>
 
-        <div className="bg-white p-4 rounded shadow">
+        <div className="bg-gray-100 p-4 rounded shadow mb-2">
           承認待ち: {pendingProjects}
         </div>
 
-        <div className="bg-white p-4 rounded shadow">
+        <div className="bg-gray-100 p-4 rounded shadow mb-2">
           平均進捗: {averageProgress}%
         </div>
 
-        <div className="bg-white p-4 rounded shadow">
-          総残予算: {totalRemainingBudget}円
+        <div className="bg-gray-100 p-4 rounded shadow">
+          総残予算: {Math.round(totalRemainingBudget)}円
         </div>
 
       </div>
 
-      <div className="bg-white p-4 rounded shadow mb-8">
+      <div className="bg-white border border-gray-300 p-4 rounded-md shadow-sm mb-8">
         <input
-          className="border p-2 mr-2"
+          className="bg-white border border-gray-300 rounded-md shadow-sm p-3 w-70"
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
           placeholder="案件名"
         />
 
         <input
-          className="border p-2 mr-2"
+          className="bg-white border border-gray-300 rounded-md shadow-sm p-3 w-70"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="説明"
@@ -265,7 +273,7 @@ function App() {
 
         <button
           onClick={handleSubmit}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 ml-5 cursor-pointer transition-colors duration-200 ease-in-out"
         >
           追加
         </button>
@@ -282,34 +290,59 @@ function App() {
             </h2>
 
             <p>{project.description}</p>
-            <p>{project.status}</p>
+            <p className="font-medium text-gray-700">
+              ステータス: {project.status}
+            </p>
             <p>進捗: {project.progress_rate ?? 0}%</p>
 
-            {project.status === "申請中" &&
+            {project.status === "一次承認待ち" &&
               currentUserRole === "manager" && (
-                <button
-                  onClick={() =>
-                    approveProject(project.project_id, "一次承認済み")
-                  }
-                  className="bg-green-500 text-white px-4 py-2 rounded mt-2"
-                >
-                  一次承認
-                </button>
+                <>
+                  <button
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700  cursor-pointer transition-colors duration-200 ease-in-out"
+                    onClick={() =>
+                      approveProject(project.project_id, "一次承認済み")
+                    }
+                  >
+                    一次承認
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      approveProject(project.project_id, "却下")
+                    }
+                    className="bg-red-600 text-white px-4 py-2 rounded-md ml-2 cursor-pointer hover:bg-red-700"
+                  >
+                    却下
+                  </button>
+                </>
               )}
 
             {project.status === "一次承認済み" &&
               currentUserRole === "admin" && (
-                <button
-                  onClick={() =>
-                    approveProject(project.project_id, "最終承認済み")
-                  }
-                  className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-                >
-                  最終承認
-                </button>
+                <div>
+                  <button
+                    onClick={() =>
+                      approveProject(project.project_id, "最終承認済み")
+                    }
+                    className="bg-blue-600 text-white px-4 py-2 rounded mt-2 transition-colors duration-200 ease-in-out hover:bg-blue-700 cursor-pointer"
+                  >
+                    最終承認
+                  </button>
+                  <button
+                    onClick={() =>
+                      approveProject(project.project_id, "却下")
+                    }
+                    className="bg-red-600 text-white px-4 py-2 rounded-md ml-2 cursor-pointer hover:bg-red-700"
+                  >
+                    却下
+                  </button>
+                </div>
               )}
             <input
               type="number"
+              min="0"
+              max="100"
               placeholder="進捗%"
               className="border p-2 mt-2 mr-2"
               value={progressInputs[project.project_id] || ""}
@@ -323,7 +356,7 @@ function App() {
 
             <button
               onClick={() => updateProgress(project.project_id)}
-              className="bg-yellow-500 text-white px-4 py-2 rounded"
+              className="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-indigo-600 transition-colors duration-200 ease-in-out"
             >
               進捗更新
             </button>
@@ -346,7 +379,7 @@ function App() {
 
             <button
               onClick={() => updateBudget(project.project_id)}
-              className="bg-red-500 text-white px-4 py-2 rounded"
+              className="bg-amber-700 text-white px-4 py-2 rounded cursor-pointer hover:bg-amber-800 transition-colors duration-200 ease-in-out"
             >
               予算更新
             </button>
