@@ -29,6 +29,23 @@ VALUES
 
 $pdo->exec($sql);
 
+$project_id = $pdo->lastInsertId();
+
+$sql2 = "INSERT INTO project_progress
+(project_id, progress_rate, comment)
+VALUES
+('$project_id', 0, '')";
+
+$pdo->exec($sql2);
+
+$sql3 = "INSERT INTO budget
+(project_id, planned_amount, actual_amount, remains)
+VALUES
+('$project_id', 100000, 0, 100000)";
+
+$pdo->exec($sql3);
+
 echo json_encode([
     "message" => "案件登録成功"
 ]);
+

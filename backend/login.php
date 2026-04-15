@@ -1,40 +1,38 @@
 <?php
 
-header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Content-Type: application/json");
 
-$host = "localhost";
-$dbname = "development_management";
-$username = "root";
-$password = "NZMtomjerry0863";
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
+}
 
-try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $username,
-        $password
-    );
+$pdo = new PDO(
+    "mysql:host=localhost;dbname=development_management;charset=utf8",
+    "root",
+    "NZMtomjerry0863"
+);
 
-    $email = $_POST['email'];
-    $input_password = $_POST['password'];
+$data = json_decode(file_get_contents("php://input"), true);
 
-    $sql = "SELECT * FROM users WHERE email = '$email'";
-    $stmt = $pdo->query($sql);
+$email = $data['email'];
+$input_password = $data['password'];
 
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+$sql = "SELECT * FROM users WHERE email = '$email'";
+$stmt = $pdo->query($sql);
 
-    if ($user && $user['password_hash'] === $input_password) {
-        echo json_encode([
-            "message" => "ログイン成功",
-            "user" => $user
-        ]);
-    } else {
-        echo json_encode([
-            "message" => "ログイン失敗"
-        ]);
-    }
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-} catch (PDOException $e) {
+if ($user && $user['password_hash'] === $input_password) {
     echo json_encode([
-        "error" => $e->getMessage()
+        "message" => "ログイン成功",
+        "role" => $user['role'],
+        "user_id" => $user['user_id']
+    ]);
+} else {
+    echo json_encode([
+        "message" => "ログイン失敗"
     ]);
 }
