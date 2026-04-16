@@ -22,6 +22,7 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchWord, setSearchWord] = useState("");
   const [currentUserRole, setCurrentUserRole] =
     useState<string>("");
   useEffect(() => {
@@ -36,7 +37,7 @@ function App() {
 
   const fetchProjects = async () => {
     const res = await fetch(
-      "http://localhost/development_management/backend/get_projects.php"
+      "http://localhost/development_management/quest_1/backend/get_projects.php"
     );
 
     const data = await res.json();
@@ -50,7 +51,7 @@ function App() {
 
   const handleSubmit = async () => {
     const response = await fetch(
-      "http://localhost/development_management/backend/add_project.php",
+      "http://localhost/development_management/quest_1/backend/add_project.php",
       {
         method: "POST",
         headers: {
@@ -79,7 +80,7 @@ function App() {
     newStatus: string
   ) => {
     const response = await fetch(
-      "http://localhost/development_management/backend/approve_project.php",
+      "http://localhost/development_management/quest_1/backend/approve_project.php",
       {
         method: "POST",
         headers: {
@@ -107,7 +108,7 @@ function App() {
       return;
     }
     const response = await fetch(
-      "http://localhost/development_management/backend/update_progress.php",
+      "http://localhost/development_management/quest_1/backend/update_progress.php",
       {
         method: "POST",
         headers: {
@@ -130,7 +131,7 @@ function App() {
 
   const updateBudget = async (projectId: number) => {
     const response = await fetch(
-      "http://localhost/development_management/backend/update_budget.php",
+      "http://localhost/development_management/quest_1/backend/update_budget.php",
       {
         method: "POST",
         headers: {
@@ -152,7 +153,7 @@ function App() {
 
   const handleLogin = async () => {
     const response = await fetch(
-      "http://localhost/development_management/backend/login.php",
+      "http://localhost/development_management/quest_1/backend/login.php",
       {
         method: "POST",
         headers: {
@@ -224,6 +225,10 @@ function App() {
     0
   );
 
+  const filteredProjects = projects.filter((project) =>
+  project.project_name.includes(searchWord)
+);
+
   return (
     <div className="min-h-screen bg-slate-200 p-8">
       <button
@@ -279,8 +284,16 @@ function App() {
         </button>
       </div>
 
+      <input
+        type="text"
+        placeholder="案件検索"
+        className="border p-2 rounded mb-4"
+        value={searchWord}
+        onChange={(e) => setSearchWord(e.target.value)}
+      />
+
       <div className="grid gap-4">
-        {projects.map((project) => (
+        {filteredProjects.map((project) => (
           <div
             key={project.project_id}
             className="bg-white rounded-xl shadow-md p-6"
