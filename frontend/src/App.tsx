@@ -23,6 +23,8 @@ function App() {
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchWord, setSearchWord] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [sortType, setSortType] = useState("");
   const [currentUserRole, setCurrentUserRole] =
     useState<string>("");
   useEffect(() => {
@@ -50,6 +52,10 @@ function App() {
   }, []);
 
   const handleSubmit = async () => {
+    if (!projectName.trim() || !description.trim()) {
+      alert("案件名と説明を入力してください");
+      return;
+    }
     const response = await fetch(
       "http://localhost/development_management/quest_1/backend/add_project.php",
       {
@@ -67,7 +73,7 @@ function App() {
     );
 
     const result = await response.json();
-    console.log(result);
+    alert(result.message);
 
     await fetchProjects();
 
@@ -101,7 +107,12 @@ function App() {
   };
 
   const updateProgress = async (projectId: number) => {
+
     const progress = Number(progressInputs[projectId]);
+    if (!progressInputs[projectId]) {
+      alert("進捗を入力してください");
+      return;
+    }
 
     if (progress < 0 || progress > 100) {
       alert("進捗は0〜100で入力してください");
@@ -130,6 +141,10 @@ function App() {
   };
 
   const updateBudget = async (projectId: number) => {
+    if (!budgetInputs[projectId]) {
+      alert("使用額を入力してください");
+      return;
+    }
     const response = await fetch(
       "http://localhost/development_management/quest_1/backend/update_budget.php",
       {
@@ -206,8 +221,12 @@ function App() {
   }
   const totalProjects = projects.length;
 
-  const pendingProjects = projects.filter(
-    (project) => project.status === "申請中"
+  const firstApprovalCount = projects.filter(
+    (project) => project.status === "一次承認待ち"
+  ).length;
+
+  const finalApprovalCount = projects.filter(
+    (project) => project.status === "最終承認待ち"
   ).length;
 
   const averageProgress =
@@ -225,17 +244,42 @@ function App() {
     0
   );
 
-  const filteredProjects = projects.filter((project) =>
-  project.project_name.includes(searchWord)
-);
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch =
+      project.project_name.includes(searchWord);
+
+    const matchesStatus =
+      selectedStatus === "" ||
+      project.status === selectedStatus;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const sortedProjects = [...filteredProjects].sort((a, b) => {
+    if (sortType === "progress") {
+      return (b.progress_rate ?? 0) - (a.progress_rate ?? 0);
+    }
+
+    if (sortType === "budget") {
+      return (b.remains ?? 0) - (a.remains ?? 0);
+    }
+
+    if (sortType === "newest") {
+      return b.project_id - a.project_id;
+    }
+
+    return 0;
+  });
 
   return (
     <div className="min-h-screen bg-slate-200 p-8">
       <button
         className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md absolute right-10 top-7 hover:bg-gray-700 cursor-pointer transition-colors duration-200 ease-in-out"
         onClick={() => {
-          localStorage.clear();
-          setIsLoggedIn(false);
+          if (confirm("本当にログアウトしますか？")) {
+            localStorage.clear();
+            setIsLoggedIn(false);
+          }
         }}
       >
         ログアウト
@@ -247,9 +291,8 @@ function App() {
           総案件数: {totalProjects}
         </div>
 
-        <div className="bg-gray-100 p-4 rounded shadow mb-2">
-          承認待ち: {pendingProjects}
-        </div>
+        <div className="bg-gray-100 p-4 rounded shadow mb-2">一次承認待ち: {firstApprovalCount}</div>
+        <div className="bg-gray-100 p-4 rounded shadow mb-2">最終承認待ち: {finalApprovalCount}</div>
 
         <div className="bg-gray-100 p-4 rounded shadow mb-2">
           平均進捗: {averageProgress}%
@@ -292,8 +335,30 @@ function App() {
         onChange={(e) => setSearchWord(e.target.value)}
       />
 
+      <select
+        className="border p-2 rounded ml-2"
+        value={selectedStatus}
+        onChange={(e) => setSelectedStatus(e.target.value)}
+      >
+        <option value="">全て</option>
+        <option value="一次承認待ち">一次承認待ち</option>
+        <option value="二次承認待ち">二次承認待ち</option>
+        <option value="承認済み">承認済み</option>
+        <option value="却下">却下</option>
+      </select>
+      <select
+        className="border p-2 rounded ml-2"
+        value={sortType}
+        onChange={(e) => setSortType(e.target.value)}
+      >
+        <option value="">並び替えなし</option>
+        <option value="progress">進捗順</option>
+        <option value="budget">予算順</option>
+        <option value="newest">新着順</option>
+      </select>
+
       <div className="grid gap-4">
-        {filteredProjects.map((project) => (
+        {sortedProjects.map((project) => (
           <div
             key={project.project_id}
             className="bg-white rounded-xl shadow-md p-6"
@@ -307,38 +372,49 @@ function App() {
               ステータス: {project.status}
             </p>
             <p>進捗: {project.progress_rate ?? 0}%</p>
+            {project.progress_rate === 100 && <p>✅ 完了済み</p>}
 
             {project.status === "一次承認待ち" &&
               currentUserRole === "manager" && (
                 <>
                   <button
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700  cursor-pointer transition-colors duration-200 ease-in-out"
-                    onClick={() =>
-                      approveProject(project.project_id, "一次承認済み")
-                    }
+                    onClick={() => {
+                      if (confirm("本当に承認しますか？")) {
+                        approveProject(project.project_id, "最終承認待ち")
+                      }
+                    }}
                   >
                     一次承認
                   </button>
 
                   <button
-                    onClick={() =>
-                      approveProject(project.project_id, "却下")
-                    }
+                    onClick={() => {
+                      if (confirm("本当に却下しますか？")) {
+                        approveProject(project.project_id, "却下")
+                      }
+                    }}
                     className="bg-red-600 text-white px-4 py-2 rounded-md ml-2 cursor-pointer hover:bg-red-700"
                   >
                     却下
                   </button>
+                  
                 </>
+                
               )}
 
             {project.status === "一次承認済み" &&
               currentUserRole === "admin" && (
                 <div>
                   <button
-                    onClick={() =>
-                      approveProject(project.project_id, "最終承認済み")
+                    onClick={() => {
+                      if (confirm("本当に承認しますか？")) {
+                        approveProject(project.project_id, "最終承認済み")
+                      }
+                    }
                     }
                     className="bg-blue-600 text-white px-4 py-2 rounded mt-2 transition-colors duration-200 ease-in-out hover:bg-blue-700 cursor-pointer"
+
                   >
                     最終承認
                   </button>
