@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 $host = "localhost";
 $dbname = "development_management";
 $username = "root";
-$password = "NZMtomjerry0863";
+$password = "";
 
 try {
     $pdo = new PDO(

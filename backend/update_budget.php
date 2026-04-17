@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $pdo = new PDO(
     "mysql:host=localhost;dbname=development_management;charset=utf8",
     "root",
-    "NZMtomjerry0863"
+    ""
 );
 
 $data = json_decode(file_get_contents("php://input"), true);
