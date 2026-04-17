@@ -363,7 +363,14 @@ function App() {
             key={project.project_id}
             className="bg-white rounded-xl shadow-md p-6"
           >
-            <h2 className="text-xl font-bold">
+            <h2
+              className={`text-xl font-bold p-2 rounded ${project.status === "却下"
+                  ? "text-red-500 bg-red-100"
+                  : project.status === "最終承認済み"
+                    ? "text-blue-500 bg-blue-100"
+                    : ""
+                }`}
+            >
               {project.project_name}
             </h2>
 
@@ -398,12 +405,12 @@ function App() {
                   >
                     却下
                   </button>
-                  
+
                 </>
-                
+
               )}
 
-            {project.status === "一次承認済み" &&
+            {project.status === "最終承認待ち" &&
               currentUserRole === "admin" && (
                 <div>
                   <button
