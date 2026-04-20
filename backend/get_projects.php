@@ -15,25 +15,18 @@ SELECT
     project_progress.progress_rate,
     budget.planned_amount,
     budget.actual_amount,
-    budget.remains
+    budget.remains,
+    users.department_id
 FROM projects
+LEFT JOIN users
+ON projects.applicant_id = users.user_id
 LEFT JOIN project_progress
 ON projects.project_id = project_progress.project_id
 LEFT JOIN budget
 ON projects.project_id = budget.project_id
 ";
 
-
-
 $stmt = $pdo->query($sql);
-
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode($data);
-
-if (!$data) {
-    echo json_encode([
-        "error" => "データ受信失敗"
-    ]);
-    exit;
-}

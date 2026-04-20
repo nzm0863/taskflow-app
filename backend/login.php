@@ -17,19 +17,19 @@ $pdo = new PDO(
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$email = $data['email'];
-$input_password = $data['password'];
+$email = $data['email'] ?? '';
+$input_password = $data['password'] ?? '';
 
-$sql = "SELECT * FROM users WHERE email = '$email'";
-$stmt = $pdo->query($sql);
-
+$stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->execute([$email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($user && $user['password_hash'] === $input_password) {
     echo json_encode([
         "message" => "ログイン成功",
         "role" => $user['role'],
-        "user_id" => $user['user_id']
+        "user_id" => $user['user_id'],
+        "department_id" => $user["department_id"]
     ]);
 } else {
     echo json_encode([
