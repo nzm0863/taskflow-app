@@ -4,7 +4,7 @@ import ProjectCard from "./assets/components/ProjectCard";
 import Dashboard from "./assets/components/Dashboard";
 import ProjectForm from "./assets/components/ProjectForm";
 function App() {
-  const API_BASE = "http://localhost/development_management/quest_1/backend";
+  const API_BASE = "/project_management/backend";
 
 
   const [projects, setProjects] = useState<Project[]>([]);
