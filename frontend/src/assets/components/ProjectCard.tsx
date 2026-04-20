@@ -1,11 +1,11 @@
 import type { ProjectCardProps } from "./types";
-import ProgressInput from "./ProjectCard./ProgressInput";
+import ProgressInput from "./ProjectCard/ProgressInput";
 const ProjectCard = ({
   project,
   currentUserRole,
   approveProject,
   updateProgress,
-  updateBudget,
+  // updateBudget,
 }: ProjectCardProps) => {
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
@@ -93,17 +93,17 @@ const ProjectCard = ({
         type="number"
         placeholder="使用額"
         className="border p-2 mt-2 mr-2"
-        value={budgetInputs[project.project_id] || ""}
-        onChange={(e) =>
-          setBudgetInputs({
-            ...budgetInputs,
-            [project.project_id]: e.target.value,
-          })
-        }
+        // value={budgetInputs[project.project_id] || ""}
+        // onChange={(e) =>
+        //   setBudgetInputs({
+        //     ...budgetInputs,
+        //     [project.project_id]: e.target.value,
+        //   })
+        // }
       />
 
       <button
-        onClick={() => updateBudget(project.project_id)}
+        // onClick={() => updateBudget(project.project_id)}
         className="bg-amber-700 text-white px-4 py-2 rounded cursor-pointer hover:bg-amber-800 transition-colors duration-200 ease-in-out"
       >
         予算更新

@@ -8,10 +8,6 @@ function App() {
 
 
   const [projects, setProjects] = useState<Project[]>([]);
-  const [progressInputs, setProgressInputs] = useState<{ [key: number]: string }>({});
-  const [budgetInputs, setBudgetInputs] =
-    useState<{ [key: number]: string }>({});
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -45,24 +41,24 @@ function App() {
   }, []);
 
   const handleSubmit = async (name: string, desc: string) => {
-  const response = await fetch(`${API_BASE}/add_project.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      project_name: name,
-      description: desc,
-      status: "一次承認待ち",
-      applicant_id: 1,
-    }),
-  });
+    const response = await fetch(`${API_BASE}/add_project.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        project_name: name,
+        description: desc,
+        status: "一次承認待ち",
+        applicant_id: 1,
+      }),
+    });
 
-  const result = await response.json();
-  alert(result.message);
+    const result = await response.json();
+    alert(result.message);
 
-  fetchProjects();
-};
+    fetchProjects();
+  };
   const approveProject = async (
     projectId: number,
     newStatus: string
@@ -80,60 +76,45 @@ function App() {
         }),
       }
     );
-
     const result = await response.json();
-
     console.log(result);
-
     fetchProjects();
+
   };
-const updateProgress = async (projectId: number, value: number) => {
-  const response = await fetch(`${API_BASE}/update_progress.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      project_id: projectId,
-      progress_rate: value,
-    }),
-  });
-
-  const result = await response.json();
-  console.log(result);
-
-  fetchProjects();
-};
-
+  const updateProgress = async (projectId: number, value: number) => {
+    const response = await fetch(`${API_BASE}/update_progress.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        project_id: projectId,
+        progress_rate: value,
+      }),
+    });
 
     const result = await response.json();
-
     console.log(result);
 
     fetchProjects();
   };
 
-  const updateBudget = async (projectId: number) => {
-    if (!budgetInputs[projectId]) {
-      alert("使用額を入力してください");
-      return;
-    }
-    const response = await fetch(
-      `${API_BASE}/update_budget.php`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          project_id: projectId,
-          actual_amount: budgetInputs[projectId],
-        }),
-      }
-    );
+
+
+
+  const updateBudget = async (projectId: number, value: number) => {
+    const response = await fetch(`${API_BASE}/update_budget.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        project_id: projectId,
+        actual_amount: value,
+      }),
+    });
 
     const result = await response.json();
-
     console.log(result);
 
     fetchProjects();
@@ -277,10 +258,6 @@ const updateProgress = async (projectId: number, value: number) => {
           approveProject={approveProject}
           updateProgress={updateProgress}
           updateBudget={updateBudget}
-          progressInputs={progressInputs}
-          setProgressInputs={setProgressInputs}
-          budgetInputs={budgetInputs}
-          setBudgetInputs={setBudgetInputs}
         />
       ))}
     </div>
