@@ -1,15 +1,19 @@
 import type { ProjectCardProps } from "./types";
 import ProgressInput from "./ProjectCard/ProgressInput";
 import BudgetInput from "./ProjectCard/BudgetInput";
+
 const ProjectCard = ({
   project,
   currentUserRole,
+  currentDepartmentId,
   approveProject,
   updateProgress,
   updateBudget,
+  
+  
 }: ProjectCardProps) => {
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
+    <div className="bg-white rounded-xl shadow-md p-6 mt-4">
       <h2
         className={`text-xl font-bold p-2 rounded ${project.status === "却下"
           ? "text-red-500 bg-red-100"
@@ -29,7 +33,8 @@ const ProjectCard = ({
       {project.progress_rate === 100 && <p>✅ 完了済み</p>}
 
       {project.status === "一次承認待ち" &&
-        currentUserRole === "manager" && (
+        currentUserRole === "manager" &&
+        currentDepartmentId === project.department_id && (
           <>
             <button
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700  cursor-pointer transition-colors duration-200 ease-in-out"

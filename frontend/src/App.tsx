@@ -14,6 +14,7 @@ function App() {
   const [searchWord, setSearchWord] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [sortType, setSortType] = useState("");
+  const [currentDepartmentId, setCurrentDepartmentId] = useState<number | null>(null);
   const [currentUserRole, setCurrentUserRole] =
     useState<string>("");
   useEffect(() => {
@@ -143,6 +144,7 @@ function App() {
     if (result.message === "ログイン成功") {
       setIsLoggedIn(true);
       setCurrentUserRole(result.role);
+      setCurrentDepartmentId(result.department_id);
 
       localStorage.setItem("role", result.role);
       localStorage.setItem("isLoggedIn", "true");
@@ -255,6 +257,7 @@ function App() {
           key={project.project_id}
           project={project}
           currentUserRole={currentUserRole}
+          currentDepartmentId={currentDepartmentId}
           approveProject={approveProject}
           updateProgress={updateProgress}
           updateBudget={updateBudget}
