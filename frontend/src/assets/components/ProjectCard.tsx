@@ -9,17 +9,21 @@ const ProjectCard = ({
   approveProject,
   updateProgress,
   updateBudget,
-  
-  
+
+
 }: ProjectCardProps) => {
   return (
     <div className="bg-white rounded-xl shadow-md p-6 mt-4">
       <h2
         className={`text-xl font-bold p-2 rounded ${project.status === "却下"
-          ? "text-red-500 bg-red-100"
-          : project.status === "最終承認済み"
-            ? "text-blue-500 bg-blue-100"
-            : ""
+            ? "text-red-500 bg-red-100"
+            : project.status === "最終承認済み"
+              ? "text-green-600 bg-green-100"
+              : project.status === "最終承認待ち"
+                ? "text-blue-600 bg-blue-100"
+                : project.status === "一次承認待ち"
+                  ? "text-yellow-700 bg-yellow-100"
+                  : ""
           }`}
       >
         {project.project_name}
@@ -30,7 +34,7 @@ const ProjectCard = ({
         ステータス: {project.status}
       </p>
       <p>進捗: {project.progress_rate ?? 0}%</p>
-      {project.progress_rate === 100 && <p>✅ 完了済み</p>}
+      {project.progress_rate === 100 && project.status === "最終承認済み" && <p>✅ 完了済み</p>}
 
       {project.status === "一次承認待ち" &&
         currentUserRole === "manager" &&
