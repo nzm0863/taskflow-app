@@ -8,8 +8,7 @@ header("Content-Type: application/json");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
-
-$env = parse_ini_file(__DIR__ . '/../.env');
+$env = parse_ini_file('/home/nnzzm/.env');
 
 $host = $env['DB_HOST'];
 $dbname = $env['DB_NAME'];
