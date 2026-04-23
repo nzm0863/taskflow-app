@@ -1,5 +1,8 @@
 <?php
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
@@ -9,13 +12,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-$pdo = new PDO(
-    "mysql:host=mysql3107.db.sakura.ne.jp;dbname=nnzzm_p_management;charset=utf8mb4",
-    "nnzzm_p_management",
-    "nnzzm0863"
-);
+$env = parse_ini_file(__DIR__ . '/../.env');
 
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$host = $env['DB_HOST'];
+$dbname = $env['DB_NAME'];
+$user = $env['DB_USER'];
+$pass = $env['DB_PASS'];
+$charset = $env['DB_CHARSET'];
+
+try {
+    $pdo = new PDO(
+        "mysql:host={$host};dbname={$dbname};charset={$charset}",
+        $user,
+        $pass
+    );
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo json_encode([
+        "message" => "DB接続失敗"
+    ]);
+    exit;
+}
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -31,7 +48,7 @@ if ($user && $user['password_hash'] === $input_password) {
         "message" => "ログイン成功",
         "role" => $user['role'],
         "user_id" => $user['user_id'],
-        "department_id" => $user["department_id"]
+        "department_id" => $user['department_id']
     ]);
 } else {
     echo json_encode([

@@ -9,10 +9,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
+$env = parse_ini_file(__DIR__ . '/../.env');
+
+$host = $env['DB_HOST'];
+$dbname = $env['DB_NAME'];
+$user = $env['DB_USER'];
+$pass = $env['DB_PASS'];
+$charset = $env['DB_CHARSET'];
+
 $pdo = new PDO(
-    "mysql:host=mysql3107.db.sakura.ne.jp;dbname=nnzzm_p_management;charset=utf8mb4",
-    "nnzzm_p_management",
-    "nnzzm0863"
+    "mysql:host={$host};dbname={$dbname};charset={$charset}",
+    $user,
+    $pass
 );
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

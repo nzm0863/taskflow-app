@@ -2,11 +2,19 @@
 
 header('Content-Type: application/json');
 
-$host = "mysql3107.db.sakura.ne.jp";
-$dbname = "nnzzm_p_management";
-$username = "nnzzm_p_management";
-$password = "nnzzm0863";
+$env = parse_ini_file(__DIR__ . '/../.env');
 
+$host = $env['DB_HOST'];
+$dbname = $env['DB_NAME'];
+$user = $env['DB_USER'];
+$pass = $env['DB_PASS'];
+$charset = $env['DB_CHARSET'];
+
+$pdo = new PDO(
+    "mysql:host={$host};dbname={$dbname};charset={$charset}",
+    $user,
+    $pass
+);
 try {
     $pdo = new PDO(
         "mysql:host=$host;dbname=$dbname;charset=utf8",
