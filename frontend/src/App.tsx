@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { Project } from "./assets/components/types";
-import ProjectCard from "./assets/components/ProjectCard";
-import Dashboard from "./assets/components/Dashboard";
-import ProjectForm from "./assets/components/ProjectForm";
+import type { Project } from "./components/types";
+import ProjectCard from "./components/ProjectCard";
+import Dashboard from "./components/Dashboard";
+import ProjectForm from "./components/ProjectForm";
 function App() {
   const API_BASE = "https://www.nnzzm.com/project_management/backend";
   // const API_BASE = "http://localhost/development_management/quest_1/db.prod/";
@@ -42,7 +42,11 @@ function App() {
     fetchProjects();
   }, []);
 
-  const handleSubmit = async (name: string, desc: string) => {
+  const handleSubmit = async (
+    name: string,
+    desc: string,
+    requestedAmount: number
+  ) => {
     const response = await fetch(`${API_BASE}/add_project.php`, {
       method: "POST",
       headers: {
@@ -53,6 +57,7 @@ function App() {
         description: desc,
         status: "一次承認待ち",
         applicant_id: 1,
+        requested_amount: requestedAmount,
       }),
     });
 
@@ -63,7 +68,8 @@ function App() {
   };
   const approveProject = async (
     projectId: number,
-    newStatus: string
+    newStatus: string,
+    reason: string = ""
   ) => {
     const response = await fetch(
       `${API_BASE}/approve_project.php`,
@@ -75,6 +81,7 @@ function App() {
         body: JSON.stringify({
           project_id: projectId,
           status: newStatus,
+          reason: reason,
         }),
       }
     );
@@ -153,44 +160,44 @@ function App() {
   };
 
   if (!isLoggedIn) {
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-gray-200 shadow-xl p-8">
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-          ログイン
-        </h1>
-
-        <p className="text-sm text-gray-500 text-center mb-6">
-          案件管理システムへようこそ
-        </p>
-
-        <div className="space-y-4">
-          <input
-            placeholder="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          />
-
-          <input
-            placeholder="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          />
-
-          <button
-            onClick={handleLogin}
-            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition cursor-pointer"
-          >
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+        <div className="w-full max-w-md bg-gray-200 shadow-xl p-8">
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
             ログイン
-          </button>
+          </h1>
+
+          <p className="text-sm text-gray-500 text-center mb-6">
+            案件管理システムへようこそ
+          </p>
+
+          <div className="space-y-4">
+            <input
+              placeholder="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            />
+
+            <input
+              placeholder="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            />
+
+            <button
+              onClick={handleLogin}
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+            >
+              ログイン
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =

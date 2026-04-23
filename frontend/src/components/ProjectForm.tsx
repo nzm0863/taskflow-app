@@ -1,12 +1,17 @@
 import { useState } from "react";
 
 type Props = {
-  onSubmit: (name: string, description: string) => void;
+  onSubmit: (
+    name: string,
+    description: string,
+    requestedAmount: number
+  ) => void;
 };
 
 const ProjectForm = ({ onSubmit }: Props) => {
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
+  const [requestedAmount, setRequestedAmount] = useState("");
 
   const handleClick = () => {
     if (!projectName.trim() || !description.trim()) {
@@ -14,14 +19,25 @@ const ProjectForm = ({ onSubmit }: Props) => {
       return;
     }
 
-    onSubmit(projectName, description);
+    if (!requestedAmount || Number(requestedAmount) <= 0) {
+      alert("申請予算を入力してください");
+      return;
+    }
+
+    onSubmit(
+      projectName,
+      description,
+      Number(requestedAmount)
+    );
 
     setProjectName("");
     setDescription("");
+    setRequestedAmount("");
   };
 
   return (
     <div className="bg-white border border-gray-300 p-4 rounded-md shadow-sm mb-8">
+
       <input
         value={projectName}
         onChange={(e) => setProjectName(e.target.value)}
@@ -33,14 +49,26 @@ const ProjectForm = ({ onSubmit }: Props) => {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         placeholder="説明"
+        className="border p-2 mr-2 rounded-md"
+      />
+
+      <input
+        type="number"
+        value={requestedAmount}
+        onChange={(e) => setRequestedAmount(e.target.value)}
+        placeholder="申請予算"
         className="border p-2 rounded-md"
       />
 
-      <button onClick={handleClick} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 ml-5 cursor-pointer transition-colors duration-200 ease-in-out">
+      <button
+        onClick={handleClick}
+        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 ml-5 cursor-pointer transition-colors duration-200 ease-in-out"
+      >
         追加
       </button>
+
     </div>
   );
 };
 
-export default ProjectForm;
+export default ProjectForm; 

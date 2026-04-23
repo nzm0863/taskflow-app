@@ -16,20 +16,20 @@ const ProjectCard = ({
     <div className="bg-white rounded-xl shadow-md p-6 mt-4">
       <h2
         className={`text-xl font-bold p-2 rounded ${project.status === "却下"
-            ? "text-red-500 bg-red-100"
-            : project.status === "最終承認済み"
-              ? "text-green-600 bg-green-100"
-              : project.status === "最終承認待ち"
-                ? "text-blue-600 bg-blue-100"
-                : project.status === "一次承認待ち"
-                  ? "text-yellow-700 bg-yellow-100"
-                  : ""
+          ? "text-red-500 bg-red-100"
+          : project.status === "最終承認済み"
+            ? "text-green-600 bg-green-100"
+            : project.status === "最終承認待ち"
+              ? "text-blue-600 bg-blue-100"
+              : project.status === "一次承認待ち"
+                ? "text-yellow-700 bg-yellow-100"
+                : ""
           }`}
       >
         {project.project_name}
       </h2>
 
-      <p>{project.description}</p>
+      <p className="whitespace-pre-line">{project.description}</p>
       <p className="font-medium text-gray-700">
         ステータス: {project.status}
       </p>
@@ -54,7 +54,16 @@ const ProjectCard = ({
             <button
               onClick={() => {
                 if (confirm("本当に却下しますか？")) {
-                  approveProject(project.project_id, "却下")
+
+                  const reason = prompt("却下理由を入力してください");
+
+                  if (!reason?.trim()) return;
+
+                  approveProject(
+                    project.project_id,
+                    "却下",
+                    reason
+                  );
                 }
               }}
               className="bg-red-600 text-white px-4 py-2 rounded-md ml-2 cursor-pointer hover:bg-red-700"
@@ -82,9 +91,20 @@ const ProjectCard = ({
               最終承認
             </button>
             <button
-              onClick={() =>
-                approveProject(project.project_id, "却下")
-              }
+              onClick={() => {
+                if (confirm("本当に却下しますか？")) {
+
+                  const reason = prompt("却下理由を入力してください");
+
+                  if (!reason?.trim()) return;
+
+                  approveProject(
+                    project.project_id,
+                    "却下",
+                    reason
+                  );
+                }
+              }}
               className="bg-red-600 text-white px-4 py-2 rounded-md ml-2 cursor-pointer hover:bg-red-700"
             >
               却下
@@ -95,9 +115,17 @@ const ProjectCard = ({
         projectId={project.project_id}
         onUpdate={updateProgress}
       />
-      <p>予算: {project.planned_amount ?? 0}円</p>
-      <p>使用: {project.actual_amount ?? 0}円</p>
-      <p>残額: {project.remains ?? 0}円</p>
+      <p className="text-blue-700">
+        申請予算: {Number(project.requested_amount ?? 0).toLocaleString()}円
+      </p>
+
+      <p className="text-red-600">
+        使用額: {Number(project.actual_amount ?? 0).toLocaleString()}円
+      </p>
+
+      <p className="text-green-700">
+        残額: {Number(project.remains ?? 0).toLocaleString()}円
+      </p>
 
       <BudgetInput
         projectId={project.project_id}
