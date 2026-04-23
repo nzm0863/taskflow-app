@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -30,6 +32,7 @@ $project_name = $data['project_name'];
 $description = $data['description'];
 $status = $data['status'];
 $applicant_id = $data['applicant_id'];
+$requested_amount = $data['requested_amount'];
 
 $sql = "INSERT INTO projects
 (project_name, description, status, applicant_id)
@@ -48,9 +51,9 @@ VALUES
 $pdo->exec($sql2);
 
 $sql3 = "INSERT INTO budget
-(project_id, planned_amount, actual_amount, remains)
+(project_id, requested_amount, planned_amount, actual_amount, remains)
 VALUES
-('$project_id', 100000, 0, 100000)";
+('$project_id', '$requested_amount', '$requested_amount', 0, '$requested_amount')";
 
 $pdo->exec($sql3);
 

@@ -8,6 +8,7 @@ header("Content-Type: application/json");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
+
 $env = parse_ini_file('/home/nnzzm/.env');
 
 $host = $env['DB_HOST'];
@@ -28,10 +29,22 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 $project_id = $data['project_id'];
 $status = $data['status'];
+$reason = $data['reason'] ?? "";
 
-$sql = "UPDATE projects
-SET status = '$status'
-WHERE project_id = '$project_id'";
+if ($status === "却下" && $reason !== "") {
+
+    $sql = "UPDATE projects
+    SET 
+        status = '$status',
+        description = CONCAT(description, '\n\n【却下理由】\n', '$reason')
+    WHERE project_id = '$project_id'";
+
+} else {
+
+    $sql = "UPDATE projects
+    SET status = '$status'
+    WHERE project_id = '$project_id'";
+}
 
 $pdo->exec($sql);
 

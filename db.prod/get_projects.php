@@ -20,11 +20,11 @@ $pdo = new PDO(
 );
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
 $sql = "
 SELECT 
     projects.*,
     project_progress.progress_rate,
+    budget.requested_amount,
     budget.planned_amount,
     budget.actual_amount,
     budget.remains,
