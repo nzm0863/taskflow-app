@@ -16,15 +16,29 @@ function App() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [sortType, setSortType] = useState("");
   const [currentDepartmentId, setCurrentDepartmentId] = useState<number | null>(null);
+  const [currentUserName, setCurrentUserName] = useState("");
+  const [mineFirst, setMineFirst] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
   const [currentUserRole, setCurrentUserRole] =
     useState<string>("");
   useEffect(() => {
     const savedRole = localStorage.getItem("role");
     const savedLogin = localStorage.getItem("isLoggedIn");
+    const savedUserId = localStorage.getItem("user_id");
+    const savedUserName = localStorage.getItem("user_name");
+
 
     if (savedLogin === "true" && savedRole) {
       setIsLoggedIn(true);
       setCurrentUserRole(savedRole);
+      if (savedUserId) {
+        setCurrentUserId(Number(savedUserId));
+      }
+
+      if (savedUserName) {
+        setCurrentUserName(savedUserName);
+      }
     }
   }, []);
 
@@ -39,6 +53,7 @@ function App() {
   };
 
   useEffect(() => {
+
     fetchProjects();
   }, []);
 
@@ -56,7 +71,7 @@ function App() {
         project_name: name,
         description: desc,
         status: "一次承認待ち",
-        applicant_id: 1,
+        applicant_id: currentUserId,
         requested_amount: requestedAmount,
       }),
     });
@@ -148,17 +163,20 @@ function App() {
 
     console.log(result);
 
-
     if (result.message === "ログイン成功") {
       setIsLoggedIn(true);
       setCurrentUserRole(result.role);
       setCurrentDepartmentId(result.department_id);
+      setCurrentUserName(result.user_name);
+      setCurrentUserId(result.user_id);
 
       localStorage.setItem("role", result.role);
       localStorage.setItem("isLoggedIn", "true");
-    }
-  };
+      localStorage.setItem("user_id", String(result.user_id));
+      localStorage.setItem("user_name", result.user_name);
 
+    }
+  }
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -199,6 +217,7 @@ function App() {
     );
   }
 
+
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
       project.project_name.includes(searchWord);
@@ -211,6 +230,17 @@ function App() {
   });
 
   const sortedProjects = [...filteredProjects].sort((a, b) => {
+
+    if (mineFirst) {
+      const aMine = a.applicant_id === currentUserId ? 1 : 0;
+      const bMine = b.applicant_id === currentUserId ? 1 : 0;
+
+      if (aMine !== bMine) {
+        return bMine - aMine;
+      }
+    }
+
+    // 次に並び替え
     if (sortType === "progress") {
       return (b.progress_rate ?? 0) - (a.progress_rate ?? 0);
     }
@@ -226,13 +256,34 @@ function App() {
     return 0;
   });
 
+  const roleLabel =
+    currentUserRole === "admin"
+      ? "管理者"
+      : currentUserRole === "manager"
+        ? "部門責任者"
+        : "一般社員";
+
+  console.log(
+    projects.map(p => ({
+      id: p.project_id,
+      applicant_id: p.applicant_id
+    }))
+  );
   return (
     <div className="min-h-screen bg-slate-200 p-8">
+      <div className="absolute right-40 top-7 text-right">
+        <p className="font-semibold">{currentUserName} さん</p>
+        <p className="text-xs text-gray-600">{roleLabel}</p>
+      </div>
+
       <button
         className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md absolute right-10 top-7 hover:bg-gray-700 cursor-pointer transition-colors duration-200 ease-in-out"
         onClick={() => {
           if (confirm("本当にログアウトしますか？")) {
-            localStorage.clear();
+            localStorage.removeItem("role");
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user_name");
             setIsLoggedIn(false);
           }
         }}
@@ -273,6 +324,15 @@ function App() {
         <option value="budget">予算順</option>
         <option value="newest">新着順</option>
       </select>
+      <label className="ml-3 text-sm">
+        <input
+          type="checkbox"
+          checked={mineFirst}
+          onChange={(e) => setMineFirst(e.target.checked)}
+          className="mr-1"
+        />
+        自分の案件を上に表示
+      </label>
 
 
       {sortedProjects.map((project) => (
@@ -284,6 +344,7 @@ function App() {
           approveProject={approveProject}
           updateProgress={updateProgress}
           updateBudget={updateBudget}
+          currentUserId={currentUserId}
         />
       ))}
     </div>

@@ -6,12 +6,21 @@ const ProjectCard = ({
   project,
   currentUserRole,
   currentDepartmentId,
+  currentUserId,
   approveProject,
   updateProgress,
   updateBudget,
 
 
+
 }: ProjectCardProps) => {
+  const isOwner =
+    currentUserId === project.applicant_id;
+
+  const canEdit =
+    project.status === "最終承認済み" &&
+    currentUserRole === "user" &&
+    isOwner;
   return (
     <div className="bg-white rounded-xl shadow-md p-6 mt-4">
       <h2
@@ -111,10 +120,16 @@ const ProjectCard = ({
             </button>
           </div>
         )}
-      <ProgressInput
-        projectId={project.project_id}
-        onUpdate={updateProgress}
-      />
+      {canEdit ? (
+        <ProgressInput
+          projectId={project.project_id}
+          onUpdate={updateProgress}
+        />
+      ) : project.status !== "最終承認済み" ? (
+        <p>最終承認後に進捗・予算管理が可能になります</p>
+      ) : (
+        <p>申請者本人のみ更新できます</p>
+      )}
       <p className="text-blue-700">
         申請予算: {Number(project.requested_amount ?? 0).toLocaleString()}円
       </p>
@@ -126,11 +141,14 @@ const ProjectCard = ({
       <p className="text-green-700">
         残額: {Number(project.remains ?? 0).toLocaleString()}円
       </p>
+      {canEdit && (
+        <BudgetInput
+          projectId={project.project_id}
+          onUpdate={updateBudget}
+        />
+      )}
 
-      <BudgetInput
-        projectId={project.project_id}
-        onUpdate={updateBudget}
-      />
+
 
     </div>
   );

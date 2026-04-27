@@ -9,6 +9,7 @@ export type Project = {
   actual_amount?: number;
   remains?: number;
   requested_amount: number;
+  applicant_id:number | null;
 };
 
 
@@ -19,6 +20,7 @@ export type ProjectCardProps = {
   updateProgress: (id: number, value: number) => void;
   updateBudget: (id: number, value: number) => void;
   currentDepartmentId: number | null;
+  currentUserId:number | null;
   
 };
 
@@ -34,4 +36,5 @@ export type ProgressInputProps = {
 export type BudgetInputProps = {
   projectId: number;
   onUpdate: (id: number, value: number) => void;
+  
 };

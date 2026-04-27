@@ -64,7 +64,7 @@ const ProjectForm = ({ onSubmit }: Props) => {
         onClick={handleClick}
         className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 ml-5 cursor-pointer transition-colors duration-200 ease-in-out"
       >
-        追加
+        新規案件の申請
       </button>
 
     </div>
