@@ -22,22 +22,24 @@ const ProgressInput = ({ projectId, onUpdate }: ProgressInputProps) => {
   };
 
   return (
-    <>
+    <div className="flex items-center gap-1  mr-4">
       <input
         type="number"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="進捗%"
-        className="border p-2 mt-2 mr-2"
+        className="border border-gray-300 rounded-md px-3 h-9 w-24
+               focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
 
       <button
         onClick={handleClick}
-        className="bg-indigo-500 text-white px-4 py-2 rounded"
+        className="bg-indigo-500 text-white px-3 h-9 rounded-md text-sm
+               hover:bg-indigo-600 transition"
       >
-        進捗更新
+        更新
       </button>
-    </>
+    </div>
   );
 };
 

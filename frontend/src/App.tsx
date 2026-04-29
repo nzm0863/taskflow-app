@@ -14,10 +14,11 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchWord, setSearchWord] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [sortType, setSortType] = useState("");
+  const [sortType, setSortType] = useState("newest");
   const [currentDepartmentId, setCurrentDepartmentId] = useState<number | null>(null);
   const [currentUserName, setCurrentUserName] = useState("");
   const [mineFirst, setMineFirst] = useState(false);
+  const [hideRejected, setHideRejected] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   const [currentUserRole, setCurrentUserRole] =
@@ -191,6 +192,9 @@ function App() {
 
           <div className="space-y-4">
             <input
+              type="email"
+              inputMode="email"
+              pattern="[a-zA-Z0-9@._-]+"
               placeholder="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -226,10 +230,28 @@ function App() {
       selectedStatus === "" ||
       project.status === selectedStatus;
 
-    return matchesSearch && matchesStatus;
+    const matchesRejected =
+      !hideRejected || project.status !== "却下";
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesRejected
+    );
   });
 
   const sortedProjects = [...filteredProjects].sort((a, b) => {
+    const aDept =
+      currentUserRole === "manager" &&
+        a.department_id === currentDepartmentId ? 1 : 0;
+
+    const bDept =
+      currentUserRole === "manager" &&
+        b.department_id === currentDepartmentId ? 1 : 0;
+
+    if (aDept !== bDept) {
+      return bDept - aDept;
+    }
 
     if (mineFirst) {
       const aMine = a.applicant_id === currentUserId ? 1 : 0;
@@ -240,7 +262,6 @@ function App() {
       }
     }
 
-    // 次に並び替え
     if (sortType === "progress") {
       return (b.progress_rate ?? 0) - (a.progress_rate ?? 0);
     }
@@ -258,10 +279,10 @@ function App() {
 
   const roleLabel =
     currentUserRole === "admin"
-      ? "管理者"
+      ? "本部管理者"
       : currentUserRole === "manager"
         ? "部門責任者"
-        : "一般社員";
+        : "申請者";
 
   console.log(
     projects.map(p => ({
@@ -271,82 +292,107 @@ function App() {
   );
   return (
     <div className="min-h-screen bg-slate-200 p-8">
-      <div className="absolute right-40 top-7 text-right">
-        <p className="font-semibold">{currentUserName} さん</p>
-        <p className="text-xs text-gray-600">{roleLabel}</p>
+      <div className="max-w-6xl mx-auto relative">
+        <div className="absolute right-30 text-right">
+          <p className="font-semibold">{currentUserName} さん</p>
+          <p className="text-xs text-gray-600">{roleLabel}</p>
+        </div>
+
+        <button
+          className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md absolute right-0  hover:bg-gray-700 cursor-pointer transition-colors duration-200 ease-in-out"
+          onClick={() => {
+            if (confirm("本当にログアウトしますか？")) {
+              localStorage.removeItem("role");
+              localStorage.removeItem("isLoggedIn");
+              localStorage.removeItem("user_id");
+              localStorage.removeItem("user_name");
+              setIsLoggedIn(false);
+            }
+          }}
+        >
+          ログアウト
+        </button>
+        <h1 className="text-3xl font-bold mb-6">案件一覧</h1>
+        <Dashboard projects={projects} />
+
+        <ProjectForm onSubmit={handleSubmit} />
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 mb-6">
+          <div className="flex items-center gap-4 flex-wrap">
+
+            <input
+              type="text"
+              placeholder="案件検索"
+              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-80
+                 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={searchWord}
+              onChange={(e) => setSearchWord(e.target.value)}
+            />
+
+            <select
+              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-44
+                 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option value="">全て</option>
+              <option value="一次承認待ち">一次承認待ち</option>
+              <option value="最終承認待ち">最終承認待ち</option>
+              <option value="最終承認済み">承認済み</option>
+              <option value="却下">却下</option>
+            </select>
+
+            <select
+              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-40
+                 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={sortType}
+              onChange={(e) => setSortType(e.target.value)}
+            >
+              <option value="newest">新着順</option>
+              <option value="progress">進捗順</option>
+              <option value="budget">予算順</option>
+            </select>
+
+            <div className="flex flex-col sm:flex-row gap-10 lg:ml-10">
+
+              <label className="text-sm text-gray-700 flex items-center">
+                <input
+                  type="checkbox"
+                  checked={mineFirst}
+                  onChange={(e) => setMineFirst(e.target.checked)}
+                  className="mr-2"
+                />
+                自身の案件を上に表示
+              </label>
+
+              <label className="text-sm text-gray-700 flex items-center">
+                <input
+                  type="checkbox"
+                  checked={hideRejected}
+                  onChange={(e) => setHideRejected(e.target.checked)}
+                  className="mr-2"
+                />
+                却下案件を非表示
+              </label>
+
+            </div>
+
+          </div>
+        </div>
+
+
+        {sortedProjects.map((project) => (
+          <ProjectCard
+            key={project.project_id}
+            project={project}
+            currentUserRole={currentUserRole}
+            currentDepartmentId={currentDepartmentId}
+            approveProject={approveProject}
+            updateProgress={updateProgress}
+            updateBudget={updateBudget}
+            currentUserId={currentUserId}
+          />
+        ))}
       </div>
-
-      <button
-        className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md absolute right-10 top-7 hover:bg-gray-700 cursor-pointer transition-colors duration-200 ease-in-out"
-        onClick={() => {
-          if (confirm("本当にログアウトしますか？")) {
-            localStorage.removeItem("role");
-            localStorage.removeItem("isLoggedIn");
-            localStorage.removeItem("user_id");
-            localStorage.removeItem("user_name");
-            setIsLoggedIn(false);
-          }
-        }}
-      >
-        ログアウト
-      </button>
-      <h1 className="text-3xl font-bold mb-6">案件一覧</h1>
-      <Dashboard projects={projects} />
-
-      <ProjectForm onSubmit={handleSubmit} />
-
-      <input
-        type="text"
-        placeholder="案件検索"
-        className="border p-2 rounded mb-4"
-        value={searchWord}
-        onChange={(e) => setSearchWord(e.target.value)}
-      />
-
-      <select
-        className="border p-2 rounded ml-2"
-        value={selectedStatus}
-        onChange={(e) => setSelectedStatus(e.target.value)}
-      >
-        <option value="">全て</option>
-        <option value="一次承認待ち">一次承認待ち</option>
-        <option value="二次承認待ち">二次承認待ち</option>
-        <option value="承認済み">承認済み</option>
-        <option value="却下">却下</option>
-      </select>
-      <select
-        className="border p-2 rounded ml-2"
-        value={sortType}
-        onChange={(e) => setSortType(e.target.value)}
-      >
-        <option value="">並び替えなし</option>
-        <option value="progress">進捗順</option>
-        <option value="budget">予算順</option>
-        <option value="newest">新着順</option>
-      </select>
-      <label className="ml-3 text-sm">
-        <input
-          type="checkbox"
-          checked={mineFirst}
-          onChange={(e) => setMineFirst(e.target.checked)}
-          className="mr-1"
-        />
-        自分の案件を上に表示
-      </label>
-
-
-      {sortedProjects.map((project) => (
-        <ProjectCard
-          key={project.project_id}
-          project={project}
-          currentUserRole={currentUserRole}
-          currentDepartmentId={currentDepartmentId}
-          approveProject={approveProject}
-          updateProgress={updateProgress}
-          updateBudget={updateBudget}
-          currentUserId={currentUserId}
-        />
-      ))}
     </div>
   );
 }
