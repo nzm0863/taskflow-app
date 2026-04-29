@@ -19,6 +19,7 @@ function App() {
   const [currentUserName, setCurrentUserName] = useState("");
   const [mineFirst, setMineFirst] = useState(false);
   const [hideRejected, setHideRejected] = useState(false);
+  const [error, setError] = useState("");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   const [currentUserRole, setCurrentUserRole] =
@@ -146,38 +147,48 @@ function App() {
   };
 
   const handleLogin = async () => {
-    const response = await fetch(
-      `${API_BASE}/login.php`,
-      {
+    if (!email.trim() || !password.trim()) {
+      setError("メールアドレスとパスワードを入力してください");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      setError("正しいメールアドレスを入力してください");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/login.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (result.message === "ログイン成功") {
+        setError("");
+
+        setIsLoggedIn(true);
+        setCurrentUserRole(result.role);
+        setCurrentDepartmentId(result.department_id);
+        setCurrentUserName(result.user_name);
+        setCurrentUserId(result.user_id);
+
+        localStorage.setItem("role", result.role);
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("user_id", String(result.user_id));
+        localStorage.setItem("user_name", result.user_name);
+      } else {
+        setError("メールアドレスまたはパスワードが違います");
       }
-    );
-
-    const result = await response.json();
-
-    console.log(result);
-
-    if (result.message === "ログイン成功") {
-      setIsLoggedIn(true);
-      setCurrentUserRole(result.role);
-      setCurrentDepartmentId(result.department_id);
-      setCurrentUserName(result.user_name);
-      setCurrentUserId(result.user_id);
-
-      localStorage.setItem("role", result.role);
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("user_id", String(result.user_id));
-      localStorage.setItem("user_name", result.user_name);
-
+    } catch (e) {
+      console.error(e);
+      setError("通信エラーが発生しました");
     }
-  }
+  };
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -194,10 +205,13 @@ function App() {
             <input
               type="email"
               inputMode="email"
-              pattern="[a-zA-Z0-9@._-]+"
+              pattern="[a-zA-Z0-9@._\-]+"
               placeholder="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                const filtered = e.target.value.replace(/[^a-zA-Z0-9@._-]/g, "");
+                setEmail(filtered);
+              }}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
 
@@ -208,6 +222,12 @@ function App() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
+
+            {error && (
+              <p className="text-red-500 text-sm mt-2 text-center">
+                {error}
+              </p>
+            )}
 
             <button
               onClick={handleLogin}
