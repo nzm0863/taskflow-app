@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 $pdo = new PDO(
     "mysql:host=localhost;dbname=development_management;charset=utf8",
     "root",
-    ""
+    " "
 );
 
 $project_id = $_POST['project_id'];

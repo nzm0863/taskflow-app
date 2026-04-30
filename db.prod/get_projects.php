@@ -23,6 +23,9 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $sql = "
 SELECT 
     projects.*,
+    users.user_name,
+    users.department_id,
+    departments.department_name,
     project_progress.progress_rate,
     budget.requested_amount,
     budget.planned_amount,
@@ -32,6 +35,8 @@ SELECT
 FROM projects
 LEFT JOIN users
 ON projects.applicant_id = users.user_id
+LEFT JOIN departments
+ON users.department_id = departments.department_id
 LEFT JOIN project_progress
 ON projects.project_id = project_progress.project_id
 LEFT JOIN budget
