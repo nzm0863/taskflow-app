@@ -22,22 +22,24 @@ const BudgetInput = ({ projectId, onUpdate }: BudgetInputProps) => {
   };
 
   return (
-    <>
+    <div className="flex items-center gap-1">
       <input
         type="number"
         placeholder="使用額"
-        className="border p-2 mt-2 mr-2"
+        className="border border-gray-300 rounded-md px-3 h-9 w-32
+               focus:outline-none focus:ring-2 focus:ring-amber-400"
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
 
       <button
         onClick={handleClick}
-        className="bg-amber-700 text-white px-4 py-2 rounded cursor-pointer hover:bg-amber-800 transition-colors duration-200 ease-in-out"
+        className="bg-amber-600 text-white px-3 h-9 rounded-md text-sm
+               hover:bg-amber-700 transition"
       >
-        予算更新
+        更新
       </button>
-    </>
+    </div>
   );
 };
 
