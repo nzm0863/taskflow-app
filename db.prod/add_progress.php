@@ -1,8 +1,7 @@
 <?php
 
 header('Content-Type: application/json');
-
-$env = parse_ini_file(__DIR__ . '/../.env');
+$env = parse_ini_file('/home/nnzzm/.env');
 
 $host = $env['DB_HOST'];
 $dbname = $env['DB_NAME'];

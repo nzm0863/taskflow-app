@@ -5,8 +5,7 @@ error_reporting(E_ALL);
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-
-$env = parse_ini_file(__DIR__ . '/../.env');
+$env = parse_ini_file('/home/nnzzm/.env');
 
 $host = $env['DB_HOST'];
 $dbname = $env['DB_NAME'];
@@ -21,11 +20,11 @@ $pdo = new PDO(
 );
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
 $sql = "
 SELECT 
     projects.*,
     project_progress.progress_rate,
+    budget.requested_amount,
     budget.planned_amount,
     budget.actual_amount,
     budget.remains,
