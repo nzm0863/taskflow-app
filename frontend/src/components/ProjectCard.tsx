@@ -61,7 +61,6 @@ const ProjectCard = ({
   return (
     <div className="bg-white rounded-lg shadow-sm p-5 mt-3 border border-gray-200 hover:shadow-md transition">
 
-      {/* タイトル */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xl font-semibold">
           {project.project_name}
@@ -73,10 +72,8 @@ const ProjectCard = ({
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* 左 */}
         <div className="space-y-0">
 
-          {/* 左：説明 */}
           <div
             onClick={handleClick}
             className={`text-sm text-gray-600 whitespace-pre-line hover:opacity-80 ${open ? "line-clamp-none" : "line-clamp-1"
@@ -89,7 +86,6 @@ const ProjectCard = ({
 
 
           <div className="flex justify-between items-start">
-            {/* 金額 */}
             <div className="flex gap-8 text-base mt-2">
 
               <div>
@@ -135,9 +131,7 @@ const ProjectCard = ({
         </div>
 
 
-        {/* 右 */}
         <div className="space-y-1 w-full">
-          {/* 進捗 */}
           <div className="relative">
             <div className="flex justify-between text-sm">
               <span>進捗</span>
@@ -173,9 +167,7 @@ const ProjectCard = ({
               </p>
             )}
           </div>
-          {/* ボタン */}
           <div className="flex gap-2 flex-wrap justify-end -mt-6">
-            {/* 一次承認 */}
             {project.status === "一次承認待ち" &&
               currentUserRole === "manager" &&
               currentDepartmentId === project.department_id && (
@@ -206,7 +198,6 @@ const ProjectCard = ({
                 </>
               )}
 
-            {/* 最終承認 */}
             {project.status === "最終承認待ち" &&
               currentUserRole === "admin" && (
                 <>
