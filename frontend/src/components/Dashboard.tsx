@@ -22,7 +22,7 @@ const Dashboard = ({ projects }: DashboardProps) => {
 
   return (
     <div className="bg-white rounded shadow-md p-5 mb-6">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 
         <div className="bg-gray-200 rounded p-4 text-center">
           <p className="text-sm text-gray-700">総案件数</p>

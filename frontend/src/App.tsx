@@ -29,19 +29,20 @@ function App() {
     const savedLogin = localStorage.getItem("isLoggedIn");
     const savedUserId = localStorage.getItem("user_id");
     const savedUserName = localStorage.getItem("user_name");
+    const savedDepartmentId = localStorage.getItem("department_id");
 
-
-    if (savedLogin === "true" && savedRole) {
+    if (savedLogin === "true") {
       setIsLoggedIn(true);
-      setCurrentUserRole(savedRole);
-      if (savedUserId) {
-        setCurrentUserId(Number(savedUserId));
-      }
 
-      if (savedUserName) {
-        setCurrentUserName(savedUserName);
-      }
+      if (savedRole) setCurrentUserRole(savedRole);
+      if (savedUserId) setCurrentUserId(Number(savedUserId));
+      if (savedUserName) setCurrentUserName(savedUserName);
+      if (savedDepartmentId)
+        setCurrentDepartmentId(Number(savedDepartmentId));
     }
+
+
+    fetchProjects();
   }, []);
 
   const fetchProjects = async () => {
@@ -54,10 +55,7 @@ function App() {
     setProjects(data);
   };
 
-  useEffect(() => {
 
-    fetchProjects();
-  }, []);
 
   const handleSubmit = async (
     name: string,
@@ -181,6 +179,7 @@ function App() {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("user_id", String(result.user_id));
         localStorage.setItem("user_name", result.user_name);
+        localStorage.setItem("department_id", String(result.department_id));
       } else {
         setError("メールアドレスまたはパスワードが違います");
       }
@@ -311,10 +310,12 @@ function App() {
     }))
   );
   return (
-    <div className="min-h-screen bg-slate-200 p-8">
+    <div className="min-h-screen bg-slate-200 p-4 sm:p-6 lg:p-8">
+      <h1>{currentUserRole}</h1>
+      <h1>{currentDepartmentId}</h1>
       <div className="max-w-6xl mx-auto relative">
         <div className="absolute right-30 text-right">
-          <p className="font-semibold">{currentUserName} さん</p>
+          <p className="text-xs font-semibold md:text-sm">{currentUserName} さん</p>
           <p className="text-xs text-gray-600">{roleLabel}</p>
         </div>
 
@@ -332,7 +333,7 @@ function App() {
         >
           ログアウト
         </button>
-        <h1 className="text-3xl font-bold mb-6">案件一覧</h1>
+        <h1 className="text-base font-bold mb-6 md:text-3xl">案件一覧</h1>
         <Dashboard projects={projects} />
 
         <ProjectForm onSubmit={handleSubmit} />
@@ -372,7 +373,7 @@ function App() {
               <option value="budget">予算順</option>
             </select>
 
-            <div className="flex flex-col sm:flex-row gap-10 lg:ml-10">
+            <div className="flex flex-col sm:flex-row flex-column gap-2 sm:gap-10 md:ml-10">
 
               <label className="text-sm text-gray-700 flex items-center">
                 <input
@@ -394,6 +395,7 @@ function App() {
                 却下案件を非表示
               </label>
 
+
             </div>
 
           </div>
@@ -414,6 +416,7 @@ function App() {
         ))}
       </div>
     </div>
+
   );
 }
 export default App;

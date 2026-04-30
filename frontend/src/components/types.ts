@@ -10,6 +10,8 @@ export type Project = {
   remains?: number;
   requested_amount: number;
   applicant_id:number | null;
+  user_name:string;
+  department_name:string;
 };
 
 
