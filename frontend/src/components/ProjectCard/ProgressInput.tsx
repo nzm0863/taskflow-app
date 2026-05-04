@@ -28,7 +28,7 @@ const ProgressInput = ({ projectId, onUpdate }: ProgressInputProps) => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="進捗%"
-        className="border border-gray-300 rounded-md px-3 h-9 w-24
+        className="border border-gray-300 rounded-md px-3 h-9 w-32
                focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
 
@@ -39,6 +39,7 @@ const ProgressInput = ({ projectId, onUpdate }: ProgressInputProps) => {
       >
         更新
       </button>
+      
     </div>
   );
 };

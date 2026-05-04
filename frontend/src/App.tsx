@@ -17,10 +17,18 @@ function App() {
   const [sortType, setSortType] = useState("newest");
   const [currentDepartmentId, setCurrentDepartmentId] = useState<number | null>(null);
   const [currentUserName, setCurrentUserName] = useState("");
-  const [mineFirst, setMineFirst] = useState(false);
+  const [mineFirst, setMineFirst] = useState(true);
   const [hideRejected, setHideRejected] = useState(false);
   const [error, setError] = useState("");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [viewType, setViewType] = useState<"mine" | "all">("mine");
+
+  const allProjects = projects;
+
+  const displayProjects =
+    viewType === "mine"
+      ? projects.filter(p => p.applicant_id === currentUserId)
+      : projects;
 
   const [currentUserRole, setCurrentUserRole] =
     useState<string>("");
@@ -29,20 +37,23 @@ function App() {
     const savedLogin = localStorage.getItem("isLoggedIn");
     const savedUserId = localStorage.getItem("user_id");
     const savedUserName = localStorage.getItem("user_name");
+    const savedDepartmentId = localStorage.getItem("department_id");
 
-
-    if (savedLogin === "true" && savedRole) {
+    if (savedLogin === "true") {
       setIsLoggedIn(true);
-      setCurrentUserRole(savedRole);
-      if (savedUserId) {
-        setCurrentUserId(Number(savedUserId));
-      }
 
-      if (savedUserName) {
-        setCurrentUserName(savedUserName);
-      }
+      if (savedRole) setCurrentUserRole(savedRole);
+      if (savedUserId) setCurrentUserId(Number(savedUserId));
+      if (savedUserName) setCurrentUserName(savedUserName);
+      if (savedDepartmentId)
+        setCurrentDepartmentId(Number(savedDepartmentId));
     }
+
+
+    fetchProjects();
   }, []);
+
+
 
   const fetchProjects = async () => {
     const res = await fetch(
@@ -54,10 +65,7 @@ function App() {
     setProjects(data);
   };
 
-  useEffect(() => {
 
-    fetchProjects();
-  }, []);
 
   const handleSubmit = async (
     name: string,
@@ -181,6 +189,7 @@ function App() {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("user_id", String(result.user_id));
         localStorage.setItem("user_name", result.user_name);
+        localStorage.setItem("department_id", String(result.department_id));
       } else {
         setError("メールアドレスまたはパスワードが違います");
       }
@@ -242,7 +251,7 @@ function App() {
   }
 
 
-  const filteredProjects = projects.filter((project) => {
+  const baseFilteredProjects = projects.filter((project) => {
     const matchesSearch =
       project.project_name.includes(searchWord);
 
@@ -260,7 +269,7 @@ function App() {
     );
   });
 
-  const sortedProjects = [...filteredProjects].sort((a, b) => {
+  const sortedProjects = [...baseFilteredProjects].sort((a, b) => {
     const aDept =
       currentUserRole === "manager" &&
         a.department_id === currentDepartmentId ? 1 : 0;
@@ -310,11 +319,13 @@ function App() {
       applicant_id: p.applicant_id
     }))
   );
+
+
   return (
-    <div className="min-h-screen bg-slate-200 p-8">
+    <div className="min-h-screen bg-slate-200 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto relative">
         <div className="absolute right-30 text-right">
-          <p className="font-semibold">{currentUserName} さん</p>
+          <p className="text-xs font-semibold md:text-sm">{currentUserName} さん</p>
           <p className="text-xs text-gray-600">{roleLabel}</p>
         </div>
 
@@ -332,8 +343,27 @@ function App() {
         >
           ログアウト
         </button>
-        <h1 className="text-3xl font-bold mb-6">案件一覧</h1>
-        <Dashboard projects={projects} />
+        <h1 className="text-base font-bold mb-6 md:text-3xl">案件一覧</h1>
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => setViewType("mine")}
+            className={viewType === "mine" ? "bg-blue-500 text-white px-3 py-1 rounded" : "px-3 py-1"}
+          >
+            自分
+          </button>
+
+          <button
+            onClick={() => setViewType("all")}
+            className={viewType === "all" ? "bg-blue-500 text-white px-3 py-1 rounded" : "px-3 py-1"}
+          >
+            全体
+          </button>
+        </div>
+        <Dashboard
+          projects={displayProjects}
+          allProjects={allProjects}
+        />
+
 
         <ProjectForm onSubmit={handleSubmit} />
         <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 mb-6">
@@ -372,7 +402,7 @@ function App() {
               <option value="budget">予算順</option>
             </select>
 
-            <div className="flex flex-col sm:flex-row gap-10 lg:ml-10">
+            <div className="flex flex-col sm:flex-row flex-column gap-2 sm:gap-10 md:ml-10">
 
               <label className="text-sm text-gray-700 flex items-center">
                 <input
@@ -394,6 +424,7 @@ function App() {
                 却下案件を非表示
               </label>
 
+
             </div>
 
           </div>
@@ -414,6 +445,7 @@ function App() {
         ))}
       </div>
     </div>
+
   );
 }
 export default App;
