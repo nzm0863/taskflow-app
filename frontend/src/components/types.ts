@@ -22,10 +22,18 @@ export type ProjectCardProps = {
   currentUserRole: string;
   approveProject: (id: number, status: string, reason?: string) => void;
   updateProgress: (id: number, value: number) => void;
-  updateBudget: (id: number, value: number) => void;
+
+  updateBudget: (
+    projectId: number,
+    amount: number,
+    category: string,
+    note: string
+  ) => void;
+
   currentDepartmentId: number | null;
   currentUserId: number | null;
-  
+
+  onRefresh: () => void;
 };
 
 export type DashboardProps = {
@@ -40,5 +48,18 @@ export type ProgressInputProps = {
 
 export type BudgetInputProps = {
   projectId: number;
-  onUpdate: (id: number, value: number) => void;
+  onUpdate: (
+    projectId: number,
+    amount: number,
+    category: string,
+    note: string
+  ) => void;
+};
+
+export type BudgetHistory = {
+  id: number;
+  amount: number;
+  category: string;
+  note: string;
+  created_at: string;
 };

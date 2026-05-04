@@ -1,6 +1,7 @@
 import type { ProjectCardProps } from "./types";
 import ProgressInput from "./ProjectCard/ProgressInput";
 import BudgetInput from "./ProjectCard/BudgetInput";
+import BudgetHistoryList from "./ProjectCard/BudgetHistoryList"
 import { useState } from "react"
 
 
@@ -13,7 +14,7 @@ const ProjectCard = ({
   approveProject,
   updateProgress,
   updateBudget,
-
+  onRefresh
 
 
 
@@ -67,7 +68,7 @@ const ProjectCard = ({
   };
 
 
-  { console.log(project) }
+  console.log(project) 
 
   return (
     <div className={`relative bg-white rounded-lg shadow-sm p-5 mt-3 border-2 hover:shadow-md transition ${isMine ? "border-blue-400" : "border-gray-200"}`}>
@@ -160,6 +161,7 @@ const ProjectCard = ({
               ? formatDate(project.budget_updated_at)
               : "ー"}
           </p>
+          <BudgetHistoryList projectId={project.project_id} onRefresh={onRefresh} />
         </div>
 
 

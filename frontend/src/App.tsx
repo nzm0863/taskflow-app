@@ -136,22 +136,29 @@ function App() {
 
 
 
-  const updateBudget = async (projectId: number, value: number) => {
-    const response = await fetch(`${API_BASE}/update_budget.php`, {
+  const updateBudget = async (
+    projectId: number,
+    amount: number,
+    category: string,
+    note: string
+  ) => {
+    const res = await fetch(`${API_BASE}/update_budget.php`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json", // 🔥必須
       },
       body: JSON.stringify({
-        project_id: projectId,
-        actual_amount: value,
+        projectId,
+        amount,
+        category,
+        note,
       }),
     });
 
-    const result = await response.json();
-    console.log(result);
+    const data = await res.json();
+    console.log(data);
 
-    fetchProjects();
+    fetchProjects(); 
   };
 
   const handleLogin = async () => {
@@ -344,17 +351,17 @@ function App() {
           ログアウト
         </button>
         <h1 className="text-base font-bold mb-6 md:text-3xl">案件一覧</h1>
-        <div className="flex gap-2 mb-2">
+        <div className="flex">
           <button
             onClick={() => setViewType("mine")}
-            className={viewType === "mine" ? "bg-blue-500 text-white px-3 py-1 rounded" : "px-3 py-1"}
+            className={viewType === "mine" ? "bg-white text-black px-3 py-1 cursor-pointer" : "px-3 py-1 cursor-pointer"}
           >
             自分
           </button>
 
           <button
             onClick={() => setViewType("all")}
-            className={viewType === "all" ? "bg-blue-500 text-white px-3 py-1 rounded" : "px-3 py-1"}
+            className={viewType === "all" ? "bg-white text-black px-3 py-1 cursor-pointer" : "px-3 py-1 cursor-pointer"}
           >
             全体
           </button>
@@ -441,6 +448,7 @@ function App() {
             updateProgress={updateProgress}
             updateBudget={updateBudget}
             currentUserId={currentUserId}
+            onRefresh={fetchProjects}
           />
         ))}
       </div>
