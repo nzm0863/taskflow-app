@@ -39,6 +39,7 @@ const ProgressInput = ({ projectId, onUpdate }: ProgressInputProps) => {
       >
         更新
       </button>
+      
     </div>
   );
 };

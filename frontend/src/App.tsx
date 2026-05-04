@@ -17,10 +17,18 @@ function App() {
   const [sortType, setSortType] = useState("newest");
   const [currentDepartmentId, setCurrentDepartmentId] = useState<number | null>(null);
   const [currentUserName, setCurrentUserName] = useState("");
-  const [mineFirst, setMineFirst] = useState(false);
+  const [mineFirst, setMineFirst] = useState(true);
   const [hideRejected, setHideRejected] = useState(false);
   const [error, setError] = useState("");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [viewType, setViewType] = useState<"mine" | "all">("mine");
+
+  const allProjects = projects;
+
+  const displayProjects =
+    viewType === "mine"
+      ? projects.filter(p => p.applicant_id === currentUserId)
+      : projects;
 
   const [currentUserRole, setCurrentUserRole] =
     useState<string>("");
@@ -44,6 +52,8 @@ function App() {
 
     fetchProjects();
   }, []);
+
+
 
   const fetchProjects = async () => {
     const res = await fetch(
@@ -241,7 +251,7 @@ function App() {
   }
 
 
-  const filteredProjects = projects.filter((project) => {
+  const baseFilteredProjects = projects.filter((project) => {
     const matchesSearch =
       project.project_name.includes(searchWord);
 
@@ -259,7 +269,7 @@ function App() {
     );
   });
 
-  const sortedProjects = [...filteredProjects].sort((a, b) => {
+  const sortedProjects = [...baseFilteredProjects].sort((a, b) => {
     const aDept =
       currentUserRole === "manager" &&
         a.department_id === currentDepartmentId ? 1 : 0;
@@ -309,10 +319,10 @@ function App() {
       applicant_id: p.applicant_id
     }))
   );
+
+
   return (
     <div className="min-h-screen bg-slate-200 p-4 sm:p-6 lg:p-8">
-      <h1>{currentUserRole}</h1>
-      <h1>{currentDepartmentId}</h1>
       <div className="max-w-6xl mx-auto relative">
         <div className="absolute right-30 text-right">
           <p className="text-xs font-semibold md:text-sm">{currentUserName} さん</p>
@@ -334,7 +344,26 @@ function App() {
           ログアウト
         </button>
         <h1 className="text-base font-bold mb-6 md:text-3xl">案件一覧</h1>
-        <Dashboard projects={projects} />
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => setViewType("mine")}
+            className={viewType === "mine" ? "bg-blue-500 text-white px-3 py-1 rounded" : "px-3 py-1"}
+          >
+            自分
+          </button>
+
+          <button
+            onClick={() => setViewType("all")}
+            className={viewType === "all" ? "bg-blue-500 text-white px-3 py-1 rounded" : "px-3 py-1"}
+          >
+            全体
+          </button>
+        </div>
+        <Dashboard
+          projects={displayProjects}
+          allProjects={allProjects}
+        />
+
 
         <ProjectForm onSubmit={handleSubmit} />
         <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 mb-6">

@@ -1,6 +1,6 @@
 import type { DashboardProps } from "./types";
 
-const Dashboard = ({ projects }: DashboardProps) => {
+const Dashboard = ({ projects, allProjects }: DashboardProps) => {
   const totalProjects = projects.length;
 
   const firstApprovalCount = projects.filter(
@@ -15,13 +15,13 @@ const Dashboard = ({ projects }: DashboardProps) => {
     projects.reduce((sum, p) => sum + (p.progress_rate ?? 0), 0) /
     (projects.length || 1);
 
-  const totalRemainingBudget = projects.reduce(
-    (sum, project) => sum + Number(project.remains ?? 0),
+  const totalBudget = allProjects.reduce(
+    (sum, p) => sum + Number(p.planned_amount ?? 0),
     0
   );
 
   return (
-    <div className="bg-white rounded shadow-md p-5 mb-6">
+    <div className="bg-white rounded shadow-md p-5 mb-2">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 
         <div className="bg-gray-200 rounded p-4 text-center">
@@ -55,9 +55,10 @@ const Dashboard = ({ projects }: DashboardProps) => {
         <div className="bg-purple-100 rounded p-4 text-center">
           <p className="text-sm text-purple-700">総残予算</p>
           <p className="text-xl font-bold text-purple-800">
-            {Math.round(totalRemainingBudget).toLocaleString()}円
+            {Math.round(totalBudget).toLocaleString()}円
           </p>
         </div>
+
 
       </div>
     </div>
