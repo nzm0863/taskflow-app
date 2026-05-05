@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Project } from "./components/types";
+import type { Department } from "./components/types";
 import ProjectCard from "./components/ProjectCard";
 import Dashboard from "./components/Dashboard";
 import ProjectForm from "./components/ProjectForm";
@@ -21,14 +22,18 @@ function App() {
   const [hideRejected, setHideRejected] = useState(false);
   const [error, setError] = useState("");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [viewType, setViewType] = useState<"mine" | "all">("mine");
+  const [viewType, setViewType] = useState<"mine" | "all" | "department">("mine");
+  const [selectedDepartment, setSelectedDepartment] = useState<number | null>(null);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   const allProjects = projects;
 
   const displayProjects =
     viewType === "mine"
       ? projects.filter(p => p.applicant_id === currentUserId)
-      : projects;
+      : viewType === "department"
+        ? projects.filter(p => p.department_id === selectedDepartment)
+        : projects;
 
   const [currentUserRole, setCurrentUserRole] =
     useState<string>("");
@@ -48,7 +53,9 @@ function App() {
       if (savedDepartmentId)
         setCurrentDepartmentId(Number(savedDepartmentId));
     }
-
+    fetch(`${API_BASE}/get_departments.php`)
+      .then(res => res.json())
+      .then(data => setDepartments(data));
 
     fetchProjects();
   }, []);
@@ -56,13 +63,22 @@ function App() {
 
 
   const fetchProjects = async () => {
-    const res = await fetch(
-      `${API_BASE}/get_projects.php`
-    );
+    try {
+      const res = await fetch(
+        `${API_BASE}/get_projects.php`
+      );
+      if (!res.ok) {
+        throw new Error("サーバーエラー");
+      }
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setProjects(data);
+      setProjects(data);
+    }
+    catch (error) {
+      console.error(error);
+      alert("データ取得に失敗しました");
+    }
   };
 
 
@@ -136,20 +152,27 @@ function App() {
 
 
 
-  const updateBudget = async (projectId: number, value: number) => {
-    const response = await fetch(`${API_BASE}/update_budget.php`, {
+  const updateBudget = async (
+    projectId: number,
+    amount: number,
+    category: string,
+    note: string
+  ) => {
+    const res = await fetch(`${API_BASE}/update_budget.php`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json", // 🔥必須
       },
       body: JSON.stringify({
-        project_id: projectId,
-        actual_amount: value,
+        projectId,
+        amount,
+        category,
+        note,
       }),
     });
 
-    const result = await response.json();
-    console.log(result);
+    const data = await res.json();
+    console.log(data);
 
     fetchProjects();
   };
@@ -269,7 +292,14 @@ function App() {
     );
   });
 
-  const sortedProjects = [...baseFilteredProjects].sort((a, b) => {
+  const filteredProjects =
+    viewType === "mine"
+      ? baseFilteredProjects.filter(p => p.applicant_id === currentUserId)
+      : viewType === "department"
+        ? baseFilteredProjects.filter(p => p.department_id === selectedDepartment)
+        : baseFilteredProjects;
+
+  const sortedProjects = [...filteredProjects].sort((a, b) => {
     const aDept =
       currentUserRole === "manager" &&
         a.department_id === currentDepartmentId ? 1 : 0;
@@ -321,6 +351,10 @@ function App() {
   );
 
 
+
+
+
+
   return (
     <div className="min-h-screen bg-slate-200 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto relative">
@@ -343,21 +377,50 @@ function App() {
         >
           ログアウト
         </button>
-        <h1 className="text-base font-bold mb-6 md:text-3xl">案件一覧</h1>
-        <div className="flex gap-2 mb-2">
+        <h1 className="text-xl font-bold mb-6 md:mb-2 md:text-3xl">案件一覧</h1>
+        <div className="flex">
           <button
             onClick={() => setViewType("mine")}
-            className={viewType === "mine" ? "bg-blue-500 text-white px-3 py-1 rounded" : "px-3 py-1"}
+            className={viewType === "mine" ? "bg-white text-black px-3 py-1" : "px-3 py-1 cursor-pointer"}
           >
             自分
           </button>
 
           <button
             onClick={() => setViewType("all")}
-            className={viewType === "all" ? "bg-blue-500 text-white px-3 py-1 rounded" : "px-3 py-1"}
+            className={viewType === "all" ? "bg-white text-black px-3 py-1" : "px-3 py-1 cursor-pointer"}
           >
             全体
           </button>
+          {currentUserRole === "admin" && (
+            <>
+              <button
+                onClick={() => setViewType("department")}
+                className={
+                  viewType === "department"
+                    ? "bg-white text-black px-3 py-1"
+                    : "px-3 py-1 cursor-pointer"
+                }
+              >
+                部署
+              </button>
+
+              {viewType === "department" && (
+                <select
+                  value={selectedDepartment ?? ""}
+                  onChange={(e) => setSelectedDepartment(Number(e.target.value))}
+                  className={`bg-white text-black px-3 py-1 cursor-pointer ${viewType === "department" ? "px-3 py-1 cursor-pointer" : ""}`}
+                >
+                  <option value="">部署選択</option>
+                  {departments.map((d) => (
+                    <option key={d.department_id} value={d.department_id}>
+                      {d.department_name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </>
+          )}
         </div>
         <Dashboard
           projects={displayProjects}
@@ -441,6 +504,7 @@ function App() {
             updateProgress={updateProgress}
             updateBudget={updateBudget}
             currentUserId={currentUserId}
+            onRefresh={fetchProjects}
           />
         ))}
       </div>
