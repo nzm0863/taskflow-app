@@ -4,10 +4,10 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json");
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
+
 $env = parse_ini_file('/home/nnzzm/.env');
 
 $host = $env['DB_HOST'];
@@ -24,22 +24,29 @@ $pdo = new PDO(
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+$raw = file_get_contents("php://input");
 $data = json_decode(file_get_contents("php://input"), true);
 
-$project_id = $data['project_id'];
-$actual_amount = $data['actual_amount'];
+// 🔥 デバッグ（ここに置く）
+if (!$data) {
+    echo json_encode([
+        "error" => "JSON受け取れてない",
+        "raw" => $raw
+    ]);
+    exit;
+}
+
+$project_id = (int)$data['projectId'];
+$amount = (float)$data['amount'];
+$category = $data['category'];
+$note = $data['note'] ?? '';
+
 $sql = "
-UPDATE budget
-SET 
-  actual_amount = ?,
-  remains = planned_amount - ?,
-  updated_at = NOW()
-WHERE project_id = ?
+INSERT INTO budget_history (project_id, amount, category, note)
+VALUES (?, ?, ?, ?)
 ";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$actual_amount, $actual_amount, $project_id]);
+$stmt->execute([$project_id, $amount, $category, $note]);
 
-echo json_encode([
-    "message" => "予算更新完了"
-]);
+echo json_encode(["message" => "追加完了"]);
