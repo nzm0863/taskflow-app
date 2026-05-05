@@ -17,6 +17,11 @@ export type Project = {
   created_at: string | null;
 };
 
+export type Department = {
+  department_id: number;
+  department_name: string;
+};
+
 export type ProjectCardProps = {
   project: Project;
   currentUserRole: string;
@@ -54,6 +59,7 @@ export type BudgetInputProps = {
     category: string,
     note: string
   ) => void;
+  onAdded: () => void;
 };
 
 export type BudgetHistory = {

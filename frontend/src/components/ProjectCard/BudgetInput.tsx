@@ -1,12 +1,14 @@
 import { useState } from "react";
 import type { BudgetInputProps } from "../types";
 
-const BudgetInput = ({ projectId, onUpdate }: BudgetInputProps) => {
+const BudgetInput = ({ projectId, onUpdate, onAdded, }: BudgetInputProps) => {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("部品代");
   const [note, setNote] = useState("");
 
-  const handleClick = () => {
+
+
+  const handleClick = async() => {
     const num = Number(amount);
 
     if (!amount) {
@@ -20,7 +22,9 @@ const BudgetInput = ({ projectId, onUpdate }: BudgetInputProps) => {
     }
 
     // 🔥 ここが重要（全部渡す）
-    onUpdate(projectId, num, category, note);
+    await onUpdate(projectId, num, category, note);
+
+    onAdded();
 
     // リセット
     setAmount("");

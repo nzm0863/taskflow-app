@@ -19,6 +19,7 @@ const ProjectCard = ({
 
 
 }: ProjectCardProps) => {
+  const [refreshKey, setRefreshKey] = useState(0);
   const [open, setOpen] = useState(false);
   const isOwner =
     currentUserId === Number(project.applicant_id);
@@ -67,8 +68,12 @@ const ProjectCard = ({
     return new Date(date).toLocaleString("ja-JP");
   };
 
+  const remains =
+    Number(project.planned_amount ?? 0) -
+    Number(project.actual_amount ?? 0);
 
-  console.log(project) 
+
+  console.log(project)
 
   return (
     <div className={`relative bg-white rounded-lg shadow-sm p-5 mt-3 border-2 hover:shadow-md transition ${isMine ? "border-blue-400" : "border-gray-200"}`}>
@@ -106,66 +111,83 @@ const ProjectCard = ({
               {project.description}
             </span>
           </div>
-          
+
 
 
           <div className="md:flex justify-between items-start">
             <div className="md:flex gap-8 text-base mt-2">
 
-              <div className="flex gap-4 md:flex-col">
+              <div className="flex md:flex-col">
                 <p className="text-gray-500 md:text-gray-400 md:text-sm">申請額</p>
                 <p className="text-blue-600 font-medium">
                   {Number(project.requested_amount ?? 0).toLocaleString()}円
                 </p>
               </div>
 
-              <div className="flex gap-4 md:flex-col">
+              <div className="flex md:flex-col">
                 <p className="text-gray-500 md:text-gray-400 md:text-sm">使用額</p>
                 <p className="text-red-500 font-medium">
                   {Number(project.actual_amount ?? 0).toLocaleString()}円
                 </p>
               </div>
 
-              <div className="flex gap-4 md:flex-col">
+              <div className="flex md:flex-col">
                 <p className="w-12 md:w-10 text-gray-500 md:text-gray-400 md:text-sm">残額</p>
                 <p className="text-green-600 font-medium">
-                  {Number(project.remains ?? 0).toLocaleString()}円
+                  {remains.toLocaleString()}円
                 </p>
               </div>
+              <p className="text-xs text-gray-400 md:text-right mb-1 md:pt-6">
+                金額更新：
+                {(Number(project.actual_amount ?? 0)) > 0
+                  ? formatDate(project.budget_updated_at)
+                  : "ー"}
+              </p>
             </div>
 
-            <div className="min-h-[70px] flex items-center mt-4 mb-0">
-              {canEdit ? (
-                <div className="flex flex-col sm:flex-row gap-2">
 
-                  <BudgetInput
-                    projectId={project.project_id}
-                    onUpdate={updateBudget}
-                  />
-
-                </div>
-              ) : (
-                <p className="text-xs text-gray-400">
-                  {project.status !== "最終承認済み"
-                    ? "最終承認後に予算管理が可能になります"
-                    : "申請者本人のみ更新できます"}
-                </p>
-              )}
-
-            </div>
 
           </div>
-          <p className="text-xs text-gray-400 md:text-right">
-            金額更新：
-            {(Number(project.actual_amount ?? 0)) > 0
-              ? formatDate(project.budget_updated_at)
-              : "ー"}
-          </p>
-          <BudgetHistoryList projectId={project.project_id} onRefresh={onRefresh} />
+          <div className="items-center mt-1 mb-1">
+
+            {canEdit ? (
+              <div className="flex flex-col sm:flex-row gap-2">
+
+                <BudgetInput
+                  projectId={project.project_id}
+                  onUpdate={updateBudget}
+                  onAdded={() => {
+                    onRefresh();
+                    setRefreshKey(prev => prev + 1);
+                  }}
+                />
+
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">
+                {project.status !== "最終承認済み"
+                  ? "最終承認後に予算管理が可能になります"
+                  : "申請者本人のみ更新できます"}
+              </p>
+            )}
+
+
+          </div>
+          <div className="flex">
+
+            {project.status === "最終承認済み" && (
+              <BudgetHistoryList
+                projectId={project.project_id}
+                refreshKey={refreshKey}
+                onRefresh={onRefresh}
+              />
+            )}
+
+          </div>
         </div>
 
 
-        <div className="space-y-1 w-full -mt-4 md:mt-0 ">
+        <div className="space-y-1 w-full -mt-3">
           <div className="relative">
             <div className="flex justify-between text-sm">
 
@@ -186,7 +208,13 @@ const ProjectCard = ({
               )}
           </div>
 
-          <div className="min-h-[70px] flex items-center mb-0">
+          <div className="min-h-[70px] items-center mb-0 md:mt-8">
+            <p className="text-xs text-gray-400 mb-2">
+              進捗更新：
+              {(project.progress_rate ?? 0) > 0
+                ? formatDate(project.progress_updated_at)
+                : "ー"}
+            </p>
             {canEdit ? (
               <div className="flex flex-col sm:flex-row gap-2">
                 <ProgressInput
@@ -201,18 +229,13 @@ const ProjectCard = ({
                   : "申請者本人のみ更新できます"}
               </p>
             )}
-            
+
 
 
 
           </div>
-          <p className="text-xs text-gray-400">
-            進捗更新：
-            {(project.progress_rate ?? 0) > 0
-              ? formatDate(project.progress_updated_at)
-              : "ー"}
-          </p>
-          
+
+
           <div className="flex flex-col gap-4 md:gap-2 flex-wrap justify-end md:-mt- md:flex-row">
             {project.status === "一次承認待ち" &&
               currentUserRole === "manager" &&
