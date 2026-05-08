@@ -49,3 +49,8 @@ doc/        提出資料
 - presentation_nakamura.pdf
 - deploy/
 - ER/
+
+## 補足
+
+- 開発用バックエンド：backend
+- 本番環境用バックエンド：db.prod
