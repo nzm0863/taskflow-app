@@ -2,8 +2,7 @@
 
 ## アプリ情報
 - アプリ名: TaskFlow
-- URL:
-https://www.nnzzm.com/project_management/
+- URL: https://www.nnzzm.com/project_management/
 
 ## 動作確認用アカウント
 
@@ -22,3 +21,15 @@ https://www.nnzzm.com/project_management/
 
 ## 補足
 詳細資料は doc フォルダ内の PDF を参照してください。
+
+## 資料一覧
+- manual_nakamura.pdf
+- presentation_nakamura.pdf
+
+### deploy
+- deploy_nakamura.pdf
+- test_account_nakamura.pdf
+
+### ER
+- new_er.pdf
+- old_er.pdf
