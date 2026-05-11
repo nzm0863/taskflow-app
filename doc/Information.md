@@ -20,6 +20,18 @@
 - フロントエンド: React + Vite
 - バックエンド: PHP / MySQL
 - IoT連携: ESP32
+- デスクトップアプリ: Tauri / Rust
+
+## デスクトップアプリ対応
+
+Tauri を使用して Windows デスクトップアプリ化を行いました。
+
+- Rust ベースの Tauri を採用
+- Windows インストーラー（.exe）生成対応
+- React + TypeScript の既存フロントエンドを再利用
+- 本番環境の PHP API と HTTPS 通信
+
+![DesktopApp](./images/desktop_app.png)
 
 ## 補足
 詳細資料は doc フォルダ内の PDF を参照してください。

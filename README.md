@@ -35,6 +35,21 @@ ESP32 を用いた IoT 連携機能も実装しました。
 - ESP32
 - NeoPixel LED
 
+## デスクトップアプリ対応
+
+Tauri を使用して Windows デスクトップアプリ化を行いました。
+
+- React + TypeScript の既存フロントエンドを再利用
+- Rust ベースの Tauri を採用
+- Windows インストーラー（.exe）を生成
+- 本番環境の PHP API と HTTPS 通信
+
+![DesktopApp](./doc/images/desktop_app.png)
+
+### 使用技術
+- Tauri
+- Rust
+
 ## ディレクトリ構成
 
 ```text
