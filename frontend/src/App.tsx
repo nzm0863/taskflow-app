@@ -25,6 +25,7 @@ function App() {
   const [viewType, setViewType] = useState<"mine" | "all" | "department">("mine");
   const [selectedDepartment, setSelectedDepartment] = useState<number | null>(null);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
   const allProjects = projects;
 
@@ -44,6 +45,9 @@ function App() {
     const savedUserName = localStorage.getItem("user_name");
     const savedDepartmentId = localStorage.getItem("department_id");
 
+
+
+
     if (savedLogin === "true") {
       setIsLoggedIn(true);
 
@@ -53,6 +57,20 @@ function App() {
       if (savedDepartmentId)
         setCurrentDepartmentId(Number(savedDepartmentId));
     }
+
+    if (savedRole === "manager") {
+      setViewType("department");
+
+    } else if (savedRole === "admin") {
+      setViewType("all");
+
+    } else {
+      setViewType("mine");
+    }
+    setSelectedDepartment(
+      Number(localStorage.getItem("department_id"))
+    );
+
     fetch(`${API_BASE}/get_departments.php`)
       .then(res => res.json())
       .then(data => setDepartments(data));
@@ -208,6 +226,21 @@ function App() {
         setCurrentUserName(result.user_name);
         setCurrentUserId(result.user_id);
 
+        const departmentId = Number(result.department_id);
+
+        setCurrentDepartmentId(departmentId);
+
+        if (result.role === "manager") {
+          setViewType("department");
+          setSelectedDepartment(departmentId);
+
+        } else if (result.role === "admin") {
+          setViewType("all");
+
+        } else {
+          setViewType("mine");
+        }
+
         localStorage.setItem("role", result.role);
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("user_id", String(result.user_id));
@@ -285,10 +318,15 @@ function App() {
     const matchesRejected =
       !hideRejected || project.status !== "却下";
 
+    const matchesCompleted =
+      !hideCompleted ||
+      project.progress_rate !== 100;
+
     return (
       matchesSearch &&
       matchesStatus &&
-      matchesRejected
+      matchesRejected &&
+      matchesCompleted
     );
   });
 
@@ -377,7 +415,7 @@ function App() {
         >
           ログアウト
         </button>
-        <h1 className="text-xl font-bold mb-6 md:mb-2 md:text-3xl">案件一覧</h1>
+        <h1 className="text-xl font-bold mb-6 md:mb-2 md:text-3xl">案件管理</h1>
         <div className="flex">
           <button
             onClick={() => setViewType("mine")}
@@ -392,7 +430,7 @@ function App() {
           >
             全体
           </button>
-          {currentUserRole === "admin" && (
+          {(currentUserRole === "admin" || currentUserRole === "manager") && (
             <>
               <button
                 onClick={() => setViewType("department")}
@@ -435,14 +473,14 @@ function App() {
             <input
               type="text"
               placeholder="案件検索"
-              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-80
+              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-40
                  focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={searchWord}
               onChange={(e) => setSearchWord(e.target.value)}
             />
 
             <select
-              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-44
+              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-34
                  focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
@@ -455,8 +493,8 @@ function App() {
             </select>
 
             <select
-              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-40
-                 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-34
+                 focus:outline-none focus:ring-2 focus:ring-blue-400 md:mr-8"
               value={sortType}
               onChange={(e) => setSortType(e.target.value)}
             >
@@ -465,7 +503,7 @@ function App() {
               <option value="budget">予算順</option>
             </select>
 
-            <div className="flex flex-col sm:flex-row flex-column gap-2 sm:gap-10 md:ml-10">
+            <div className="flex flex-col sm:flex-row flex-column gap-2 sm:gap-4 ">
 
               <label className="text-sm text-gray-700 flex items-center">
                 <input
@@ -487,11 +525,22 @@ function App() {
                 却下案件を非表示
               </label>
 
+              <label className="text-sm text-gray-700 flex items-center">
+                <input
+                  type="checkbox"
+                  checked={hideCompleted}
+                  onChange={(e) => setHideCompleted(e.target.checked)}
+                  className="mr-2"
+                />
+                完了済みを非表示
+              </label>
+
 
             </div>
 
           </div>
         </div>
+
 
 
         {sortedProjects.map((project) => (

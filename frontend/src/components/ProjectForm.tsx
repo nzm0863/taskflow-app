@@ -42,7 +42,7 @@ const ProjectForm = ({ onSubmit }: Props) => {
         <input
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
-          placeholder="案件名"
+          placeholder="新規案件名"
           className="md:col-span-3 border rounded-md px-3 h-10"
         />
 
