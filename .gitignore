@@ -1,1 +1,13 @@
 .env
+
+node_modules/
+frontend/node_modules/
+
+dist/
+frontend/dist/
+
+target/
+src-tauri/target/
+
+*.exe
+*.msi
