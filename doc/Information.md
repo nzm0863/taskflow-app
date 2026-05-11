@@ -12,6 +12,8 @@
 | manager | test2@test.com | 000 |
 | user | test1@test.com | 000 |
 
+![テストアカウント一覧](./images/users.png)
+
 ## デプロイ環境
 - サーバー: さくらのレンタルサーバー
 - ドメイン: nnzzm.com
