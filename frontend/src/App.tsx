@@ -494,7 +494,7 @@ function App() {
 
             <select
               className="border border-gray-400 rounded-md px-3 h-10 w-full lg:w-34
-                 focus:outline-none focus:ring-2 focus:ring-blue-400 md:mr-8"
+                 focus:outline-none focus:ring-2 focus:ring-blue-400"
               value={sortType}
               onChange={(e) => setSortType(e.target.value)}
             >
@@ -503,7 +503,7 @@ function App() {
               <option value="budget">予算順</option>
             </select>
 
-            <div className="flex flex-col sm:flex-row flex-column gap-2 sm:gap-4 ">
+            <div className="flex flex-col sm:flex-row flex-column gap-2 sm:gap-4 lg:ml-4 xl:ml-30">
 
               <label className="text-sm text-gray-700 flex items-center">
                 <input

@@ -35,6 +35,11 @@ ESP32 を用いた IoT 連携機能も実装しました。
 - ESP32
 - NeoPixel LED
 
+## デモ動画
+
+TaskFlow IoTの動作デモ動画：
+https://www.youtube.com/watch?v=A44YyAnDyGU
+
 ## デスクトップアプリ対応
 
 Tauri を使用して Windows デスクトップアプリ化を行いました。

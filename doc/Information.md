@@ -4,6 +4,12 @@
 - アプリ名: TaskFlow
 - URL: https://www.nnzzm.com/project_management/
 
+
+## デモ動画
+
+TaskFlow IoTの動作デモ動画：
+https://www.youtube.com/watch?v=A44YyAnDyGU
+
 ## 動作確認用アカウント
 
 | 権限 | メールアドレス | パスワード |
