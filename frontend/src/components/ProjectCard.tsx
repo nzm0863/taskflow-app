@@ -73,7 +73,6 @@ const ProjectCard = ({
     Number(project.actual_amount ?? 0);
 
 
-  console.log(project)
 
   return (
     <div className={`relative bg-white rounded-lg shadow-sm p-5 mt-3 border-2 hover:shadow-md transition ${isMine ? "border-blue-400" : "border-gray-200"}`}>
