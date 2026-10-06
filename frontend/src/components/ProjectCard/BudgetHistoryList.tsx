@@ -9,7 +9,7 @@ type Props = {
 };
 
 const BudgetHistoryList = ({ projectId, refreshKey, onRefresh }: Props) => {
-  const API_BASE = "https://www.nnzzm.com/project_management/backend";
+  const API_BASE = "https://taskflow.nnzzm.com/backend";
   const [history, setHistory] = useState<BudgetHistory[]>([]);
   const [open, setOpen] = useState(false);
 

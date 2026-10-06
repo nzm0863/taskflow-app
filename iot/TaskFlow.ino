@@ -9,7 +9,7 @@ const char* ssid = "...";
 const char* password = "...";
 
 const char* url =
-  "https://www.nnzzm.com/project_management/backend/get_projects.php";
+  "https://taskflow.nnzzm.com/backend/get_projects.php";
 
 #define PIN 5
 #define LED_COUNT 64

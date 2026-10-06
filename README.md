@@ -1,6 +1,6 @@
 # TaskFlow
 
-- URL: https://www.nnzzm.com/project_management/
+- URL: https://taskflow.nnzzm.com/
 
 ![TaskFlow](./doc/images/TaskFlow.png)
 

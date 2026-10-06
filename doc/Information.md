@@ -2,7 +2,7 @@
 
 ## アプリ情報
 - アプリ名: TaskFlow
-- URL: https://www.nnzzm.com/project_management/
+- URL: https://taskflow.nnzzm.com/
 
 
 ## デモ動画
